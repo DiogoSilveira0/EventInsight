@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  {% block title %}<title>Dashboard</title>{% endblock %}
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+  <!-- Add additional CSS in static file -->
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+
+  <script type="text/javascript">
+      
+      window.onload = function(){
+
+        today(); 
+        allEvent();
+        compare();
+        charts();
+
+      }
+
+      function charts(){
+        var sales ="{{ sales }}";
+        var sales = sales.replace(/&quot;/g,"'");
+        var sales = JSON.parse('"' + sales + '"');
+        var sales = JSON.parse(sales.replace(/'/g,"\""));
+        
+        var keys = [];
+        for (var k in sales) keys.push(k);
+
+        for (var j = 0; j < keys.length; j++) {
+          var divNova = document.createElement("div"); 
+          var id = "chartContainer"+keys[j];
+          divNova.setAttribute("id",id);
+          divNova.setAttribute("style","margin-top: 50px; height: 270px; width: 100%;");
+          document.getElementById("mainDiv").appendChild(divNova);
+          
+          
+        }
+        
+        for (var i = 0; i < keys.length; i++) {
+          makeChart(keys[i]);
+        }
+      }
+
+      function today(){
+        var hoje = "{{total_today}}";
+        var hoje = hoje.replace(/&quot;/g,"'");
+        var hoje = JSON.parse('"' + hoje + '"');
+        var hoje = JSON.parse(hoje.replace(/'/g,"\""));
+
+        var keys_hoje = [];
+        for (var k in hoje) keys_hoje.push(k);
+
+        for (var j = 0; j < keys_hoje.length; j++) { //Create tables
+          var tabelaNova = document.createElement("TABLE");
+          if (j==0){
+            tabelaNova.setAttribute("style","display: inline-block;")
+          }
+          else{
+            tabelaNova.setAttribute("style","display: inline-block; margin-left: 23px;")
+          }
+          tabelaNova.setAttribute("id", "tabelaNova"+ keys_hoje[j]);
+
+          document.getElementById("today").appendChild(tabelaNova);
+              
+        }
+
+        for (var j=0; j< keys_hoje.length; j++){ //Add first row
+              var new_row1 = document.createElement('tr');
+              new_row1.setAttribute("style","text-align: center; width: 200px; border-collapse: collapse; border: 1px solid black;")
+              new_row1.setAttribute("id","newRow1"+keys_hoje[j]);
+              document.getElementById("tabelaNova"+keys_hoje[j]).appendChild(new_row1);
+        }
+
+        for (var j=0; j<keys_hoje.length;j++){ //Add Heads
+              var new_head = document.createElement("TH");
+              new_head.setAttribute("style","text-align: center; width: 200px; border-collapse: collapse; border: 1px solid black;")
+              new_head.setAttribute("id","head"+keys_hoje[j]);
+              new_head.innerHTML = keys_hoje[j].split("_")[2];
+              document.getElementById("newRow1"+keys_hoje[j]).appendChild(new_head);
+        }
+
+        for (var j=0; j<keys_hoje.length;j++){ //Add Second row
+              var new_row2 = document.createElement('tr');
+              new_row2.setAttribute("style","text-align: center; width: 200px; border-collapse: collapse; border: 1px solid black;")
+              new_row2.setAttribute("id","newRow2"+keys_hoje[j]);
+              document.getElementById("tabelaNova"+keys_hoje[j]).appendChild(new_row2);
+            }
+        
+        for (var j=0; j<keys_hoje.length;j++){ //Add Content
+              var new_content = document.createElement("td");
+              new_content.setAttribute("style","text-align: center; width: 200px; border-collapse: collapse; border: 1px solid black;")
+              new_content.setAttribute("id","content"+keys_hoje[j]);
+              new_content.innerHTML = hoje[keys_hoje[j]];
+              document.getElementById("newRow2"+keys_hoje[j]).appendChild(new_content);
+        }
+      }
+
+      function allEvent(){
+        var all = "{{total_event }}";
+        var all = all.replace(/&quot;/g,"'");
+        var all = JSON.parse('"' + all + '"');
+        var all = JSON.parse(all.replace(/'/g,"\""));
+
+        var keys_all = [];
+        for (var k in all) keys_all.push(k);
+
+        for (var j = 0; j < keys_all.length; j++) { //Create tables
+          var tabelaNova = document.createElement("TABLE");
+          if (j==0){
+            tabelaNova.setAttribute("style","display: inline-block;")
+          }
+          else{
+            tabelaNova.setAttribute("style","display: inline-block; margin-left: 23px;")
+          }
+          tabelaNova.setAttribute("id", "tabelaNova"+ keys_all[j]);
+
+          document.getElementById("all").appendChild(tabelaNova);
+              
+        }
+
+        for (var j=0; j< keys_all.length; j++){ //Add first row
+              var new_row1 = document.createElement('tr');
+              new_row1.setAttribute("style","text-align: center; width: 200px; border-collapse: collapse; border: 1px solid black;")
+              new_row1.setAttribute("id","newRow1"+keys_all[j]);
+              document.getElementById("tabelaNova"+keys_all[j]).appendChild(new_row1);
+        }
+
+        for (var j=0; j<keys_all.length;j++){ //Add Heads
+              var new_head = document.createElement("TH");
+              new_head.setAttribute("style","text-align: center; width: 200px; border-collapse: collapse; border: 1px solid black;")
+              new_head.setAttribute("id","head"+keys_all[j]);
+              new_head.innerHTML = keys_all[j].split("_")[2];
+              document.getElementById("newRow1"+keys_all[j]).appendChild(new_head);
+        }
+
+        for (var j=0; j<keys_all.length;j++){ //Add Second row
+              var new_row2 = document.createElement('tr');
+              new_row2.setAttribute("style","text-align: center; width: 200px; border-collapse: collapse; border: 1px solid black;")
+              new_row2.setAttribute("id","newRow2"+keys_all[j]);
+              document.getElementById("tabelaNova"+keys_all[j]).appendChild(new_row2);
+            }
+        
+        for (var j=0; j<keys_all.length;j++){ //Add Content
+              var new_content = document.createElement("td");
+              new_content.setAttribute("style","text-align: center; width: 200px; border-collapse: collapse; border: 1px solid black;")
+              new_content.setAttribute("id","content"+keys_all[j]);
+              new_content.innerHTML = all[keys_all[j]];
+              document.getElementById("newRow2"+keys_all[j]).appendChild(new_content);
+        }
+      }
+
+      function compare(){
+        var compare = "{{compare}}";
+        var compare = compare.replace(/&quot;/g,"'");
+        var compare = JSON.parse('"' + compare + '"');
+        var compare = JSON.parse(compare.replace(/'/g,"\""));
+
+        
+
+        var keys_compare = [];
+        for (var k in compare) keys_compare.push(k);
+
+        for (var j = 0; j < keys_compare.length; j++) { //Create tables
+          var tabelaNova = document.createElement("TABLE");
+          if (j==0){
+            tabelaNova.setAttribute("style","display: inline-block;")
+          }
+          else{
+            tabelaNova.setAttribute("style","display: inline-block; margin-left: 23px;")
+          }
+          tabelaNova.setAttribute("id", "tabelaNova"+ keys_compare[j]);
+
+          document.getElementById("compare").appendChild(tabelaNova);
+              
+        }
+
+        for (var j=0; j< keys_compare.length; j++){ //Add first row
+              var new_row1 = document.createElement('tr');
+              new_row1.setAttribute("style","text-align: center; width: 200px; border-collapse: collapse; border: 1px solid black;")
+              new_row1.setAttribute("id","newRow1"+keys_compare[j]);
+              document.getElementById("tabelaNova"+keys_compare[j]).appendChild(new_row1);
+        }
+
+        for (var j=0; j<keys_compare.length;j++){ //Add Heads
+              var new_head = document.createElement("TH");
+              new_head.setAttribute("style","text-align: center; width: 200px; border-collapse: collapse; border: 1px solid black;")
+              new_head.setAttribute("id","head"+keys_compare[j]);
+              new_head.innerHTML = keys_compare[j];
+              document.getElementById("newRow1"+keys_compare[j]).appendChild(new_head);
+        }
+
+        for (var j=0; j<keys_compare.length;j++){ //Add Second row
+              var new_row2 = document.createElement('tr');
+              new_row2.setAttribute("style","text-align: center; width: 200px; border-collapse: collapse; border: 1px solid black;")
+              new_row2.setAttribute("id","newRow2"+keys_compare[j]);
+              document.getElementById("tabelaNova"+keys_compare[j]).appendChild(new_row2);
+            }
+        
+        for (var j=0; j<keys_compare.length;j++){ //Add Content
+              var new_content = document.createElement("td");
+              new_content.setAttribute("style","text-align: center; width: 200px; border-collapse: collapse; border: 1px solid black;")
+              new_content.setAttribute("id","content"+keys_compare[j]);
+              new_content.innerHTML = compare[keys_compare[j]][0];
+              document.getElementById("newRow2"+keys_compare[j]).appendChild(new_content);
+        }
+
+        
+        for (var j=0; j<keys_compare.length;j++){ //Add Third row
+              var new_row2 = document.createElement('tr');
+              new_row2.setAttribute("style","text-align: center; width: 200px; border-collapse: collapse; border: 1px solid black;")
+              new_row2.setAttribute("id","newRow3"+keys_compare[j]);
+              document.getElementById("tabelaNova"+keys_compare[j]).appendChild(new_row2);
+        }
+        
+        for (var j=0; j<keys_compare.length;j++){ //Add Content
+              var new_content = document.createElement("td");
+              new_content.setAttribute("style","text-align: center; width: 200px; border-collapse: collapse; border: 1px solid black;")
+              new_content.setAttribute("id","content"+keys_compare[j]);
+              new_content.innerHTML = compare[keys_compare[j]][1];
+              document.getElementById("newRow3"+keys_compare[j]).appendChild(new_content);
+        }
+
+        for (var j=0; j<keys_compare.length;j++){ //Add Fourth row
+              var new_row2 = document.createElement('tr');
+              new_row2.setAttribute("style","text-align: center; width: 200px; border-collapse: collapse; border: 1px solid black;")
+              new_row2.setAttribute("id","newRow4"+keys_compare[j]);
+              document.getElementById("tabelaNova"+keys_compare[j]).appendChild(new_row2);
+        }
+        
+        for (var j=0; j<keys_compare.length;j++){ //Add Content
+              var new_content = document.createElement("td");
+
+              if (parseInt(compare[keys_compare[j]][1]) > parseInt(compare[keys_compare[j]][0])) {
+                new_content.setAttribute("style","background-color: green; text-align: center; height: 10px; width: 200px; border-collapse: collapse; border: 1px solid black;")
+              }
+              else if (parseInt(compare[keys_compare[j]][1]) == parseInt(compare[keys_compare[j]][0])) {
+                if(keys_compare[j]=="error_compare"){
+                  new_content.setAttribute("style","background-color: red; text-align: center; height: 10px; width: 200px; border-collapse: collapse; border: 1px solid black;");
+                }
+                else{
+                  new_content.setAttribute("style","background-color: yellow; text-align: center; height: 10px; width: 200px; border-collapse: collapse; border: 1px solid black;");
+                }
+              }
+              else{
+                new_content.setAttribute("style","background-color: red; text-align: center; height: 10px; width: 200px; border-collapse: collapse; border: 1px solid black;")
+              }
+              new_content.setAttribute("id","content"+keys_compare[j]);
+              document.getElementById("newRow4"+keys_compare[j]).appendChild(new_content);
+        }
+
+
+      }
+
+      function makeChart(key){
+        var sales ="{{ sales}}";
+
+        var sales = sales.replace(/&quot;/g,"'");
+        var sales = JSON.parse('"' + sales + '"');
+        
+        var sales = JSON.parse(sales.replace(/'/g,"\""));
+
+        //AQUI JA ESTA EM JSON
+
+        var keys = [];
+        for (var k in sales[key]) keys.push(k); //HORAS A POR NO GRAFICO
+        
+        
+        var id = "chartContainer" + key;
+
+        var dps = [];
+
+        for (var j = 0; j < keys.length; j++) {
+          var time = new Date(parseInt(keys[j].split("-")[0]),parseInt(keys[j].split("-")[1]),parseInt(keys[j].split("-")[2]),parseInt(keys[j].split("-")[3]));
+          
+          var value = parseInt(sales[key][keys[j]]);
+
+          var lab = new Date(parseInt(keys[j].split("-")[0]),parseInt(keys[j].split("-")[1]),parseInt(keys[j].split("-")[2]),parseInt(keys[j].split("-")[3]));
+          
+          dps.push({
+            x: time,
+            y: value,
+            label: lab 
+          });   
+        }
+
+        var chart = new CanvasJS.Chart(id, {
+          
+          animationEnabled: true,
+          theme: "light2",
+          title:{
+            text: key
+          },
+          axisX:{
+            title: "Hora",
+            tickLength: 10,
+            includeZero: false
+          },
+          axisY:{
+            title: "Valor",
+            includeZero: false
+          },
+          data: [{        
+            type: "line",
+                indexLabelFontSize: 16,
+            dataPoints: dps
+          }]
+        });
+        chart.render();
+      }
+
+
+  </script>
+</head>
+<body>
+  <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+  <!-- Side navigation -->
+  
+    <div class="sidenav">
+      <a href="home" style="margin-top: 20px;">Home</a>
+      <a href="people">People</a>
+      <a href="parking">Parking</a>
+      <a href="meteorology">Meteorology</a>
+      <a href="gps">GPS</a>
+      <a href="sales">Sales</a>
+      <a href="activities">Activities</a>
+      <a href="wcs">WCs</a>
+      <a href="queue">Queues</a>
+      <a href="logout">Logout</a>
+    </div>
+
+<!-- Page content -->
+<div class="main" id="mainDiv">
+  {% block includes %}
+  Username: {{ user }}
+  {% endblock includes %}
+  <div class="main-text">
+    <div id="today" style="margin-top: 10px;">
+      <h4>Today sales:</h4>
+    </div>
+    <div id="all" style="margin-top: 10px;">
+      <h4>All event sales:</h4>
+    </div>
+    <div id="compare" style="margin-top: 10px;">
+      <h4>Yesterday vs Today:</h4>
+    </div>
+  </div>
+</div>
+</body>
+</html>

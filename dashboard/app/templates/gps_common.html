@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  {% block title %}<title>Dashboard</title>{% endblock %}
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+  <!-- Add additional CSS in static file -->
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+  <script src="http://www.openlayers.org/api/OpenLayers.js"></script>
+  <script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+  <script type="text/javascript">
+    
+    window.onload = function(){
+      //Status
+      var status="{{ status }}";
+      var status = status.replace(/&#39;/g,"'");
+      var status = JSON.parse('"' + status + '"');
+      var status = JSON.parse(status.replace(/'/g,"\""));
+
+      var title = document.getElementById("atm_status");
+      if (status["current"]==1){
+        title.innerText += " "+"Not started";
+        var countDownDate = new Date(status["start_time"]).getTime();
+
+        var x = setInterval(function() {
+            var now = new Date().getTime();
+
+            var distance = countDownDate - now;
+              
+            var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+              
+            document.getElementById("demo").innerHTML = days + "d " + hours + "h "
+            + minutes + "m " + seconds + "s ";
+              
+            if (distance < 0) {
+              clearInterval(x);
+              document.getElementById("demo").innerHTML = "EXPIRED";
+            }
+          }, 1000);
+      }
+      else if (status["current"]==2){
+        title.innerText += " "+"Ongoing";
+        markPresent(status["start_time"]);
+
+        var table = document.getElementById("moving");
+
+        // Create an empty <tr> element and add it to the first position of <thead>:
+        var row = document.getElementById("moving_head");
+        row.setAttribute("style","text-align: center; width: 100px; border-collapse: collapse; border: 1px solid black;")
+        // Insert a new cell (<td>) at the first position of the "new" <tr> element:
+        var cell = row.insertCell(0);
+
+        // Add some bold text in the new cell:
+        if (status["moving"]=="True"){
+          table.setAttribute("style","background-color: green;");
+          cell.innerHTML = "<b>Moving</b>";
+        }
+        else{
+          table.setAttribute("style","background-color: red;");
+          cell.innerHTML = "<b>Not Moving</b>";
+        }
+        
+      }
+      else if (status["current"]==3){
+        title.innerText += " "+"Finished";
+        createTableFinished();
+        for (var stop of status["stop_points"]) { 
+          insertFinished(stop[0],stop[1],stop[2]);
+        }
+      }
+      else{
+        console.log("error");
+      }
+
+      function createTableFinished(){
+        var title = document.createElement('h4');
+        title.innerText = "Stop Points:";
+        document.getElementById("stop_points").appendChild(title);
+
+        var table = document.createElement('table');
+        table.setAttribute("id","table_stop_points");
+        table.setAttribute("class","table-stop");
+
+        document.getElementById("stop_points").appendChild(table);
+
+        var head = document.createElement('th');
+        head.setAttribute("id","th_stop_points");
+        head.setAttribute("class","head-table");
+        head.innerText ="Latitude";
+        document.getElementById("table_stop_points").appendChild(head);
+
+        var head = document.createElement('th');
+        head.setAttribute("id","th_stop_points");
+        head.setAttribute("class","head-table");
+        head.innerText ="Longitude";
+        document.getElementById("table_stop_points").appendChild(head);
+
+        var head = document.createElement('th');
+        head.setAttribute("id","th_stop_points");
+        head.setAttribute("class","head-table");
+        head.innerText ="Time";
+        document.getElementById("table_stop_points").appendChild(head);
+
+      }
+
+      function insertFinished(lat,lon,time){
+        // Find a <table> element with id="myTable":
+        var table = document.getElementById("table_stop_points");
+
+        // Create an empty <tr> element and add it to the 1st position of the table:
+        var row = table.insertRow(0);
+        row.setAttribute("class","elem-table");
+
+        // Insert new cells (<td> elements) at the 1st and 2nd position of the "new" <tr> element:
+        var cell1 = row.insertCell(0);
+        var cell2 = row.insertCell(1);
+        var cell3 = row.insertCell(2);
+
+        // Add some text to the new cells:
+        cell1.innerHTML = lat;
+        cell2.innerHTML = lon;
+        cell3.innerHTML = time;
+      }
+
+      function markPresent(start_time) {
+          var start_time = start_time.split("-");
+          window.markDate = new Date(start_time[0],start_time[1],start_time[2],start_time[3],start_time[4],start_time[5]);
+          $(document).ready(function() {
+              $("div.absent").toggleClass("present");
+          });
+          updateClock();
+      }
+
+      function updateClock() {  
+          var currDate = new Date();
+          var diff = currDate - markDate;
+          document.getElementById("timer").innerHTML = format(diff/1000);
+          setTimeout(function() {updateClock()}, 1000);
+      }
+
+      function format(seconds)
+      {
+      var numhours = parseInt(Math.floor(((seconds % 31536000) % 86400) / 3600),10);
+      var numminutes = parseInt(Math.floor((((seconds % 31536000) % 86400) % 3600) / 60),10);
+      var numseconds = parseInt((((seconds % 31536000) % 86400) % 3600) % 60,10);
+          return ((numhours<10) ? "0" + numhours : numhours)
+          + ":" + ((numminutes<10) ? "0" + numminutes : numminutes)
+          + ":" + ((numseconds<10) ? "0" + numseconds : numseconds) + " ago";
+      }
+
+
+      
+      //Path
+      var path ="{{ path }}";
+      var path = path.replace(/&#39;/g,"'");
+      var path = JSON.parse('"' + path + '"');
+      var path = JSON.parse(path.replace(/'/g,"\""));
+      
+
+      var keys = [];
+      for (var k in path) keys.push(k);
+      
+
+      for (var i = 0; i < keys.length; i++) {
+        makeRow(keys[i],path[keys[i]]);
+      }
+
+      //Map
+      var coord = "{{coordinates}}";
+      var coord = coord.replace(/&quot;/g,"'");
+      var coord = JSON.parse('"' + coord + '"');
+      var coord = JSON.parse(coord.replace(/'/g,"\""));
+
+      var keys = [];
+      for (var k in coord) keys.push(k);
+      
+      makeMap();
+    }
+
+    function makeRow(key,path){
+      var checkpoint = key;
+      var capacidade = path;
+      
+
+      var new_row = document.createElement('tr');
+      new_row.setAttribute("class","elem-table");
+      new_row.insertCell(0).innerHTML = checkpoint;
+      new_row.insertCell(1).innerHTML = path;
+
+      document.getElementById("tablePath").appendChild(new_row);
+    }
+
+    function makeMap(){
+      var coord = "{{coordinates}}";
+      var coord = coord.replace(/&quot;/g,"'");
+      var coord = JSON.parse('"' + coord + '"');
+      var coord = JSON.parse(coord.replace(/'/g,"\""));
+      
+      var lat = coord["lat"];
+      var lon = coord["lon"];
+
+      map = new OpenLayers.Map("mapdiv");
+      map.addLayer(new OpenLayers.Layer.OSM());
+
+      var lonLat = new OpenLayers.LonLat( lon ,lat)
+            .transform(
+              new OpenLayers.Projection("EPSG:4326"), // transform from WGS 1984
+              map.getProjectionObject() // to Spherical Mercator Projection
+            );
+
+      var zoom=18;
+
+      var markers = new OpenLayers.Layer.Markers( "Markers" );
+      map.addLayer(markers);
+
+      var icon = new OpenLayers.Icon("{% static 'img/marker_sprite.png' %}",
+                                new OpenLayers.Size(34, 34));
+
+
+      markers.addMarker(new OpenLayers.Marker(lonLat,icon));
+
+      map.setCenter (lonLat, zoom);
+      }
+      
+  </script>
+</head>
+<body>
+  <!-- Side navigation -->
+    <div class="sidenav">
+      <a href="home" style="margin-top: 20px;">Home</a>
+      <a href="people">People</a>
+      <a href="parking">Parking</a>
+      <a href="meteorology">Meteorology</a>
+      <a href="gps">GPS</a>
+      <a href="sales">Sales</a>
+      <a href="activities">Activities</a>
+      <a href="wcs">WCs</a>
+      <a href="queue">Queues</a>
+      <a href="logout">Logout</a>
+    </div>
+
+<!-- Page content -->
+<div class="main">
+  {% block includes %}
+  Username: {{ user }}
+  {% endblock includes %}
+  <div class="main-text">
+    <h4 id = "atm_status" style="margin-bottom: 10px; margin-top:50px;" >Status:  </h4>
+    <p id="demo"></p>
+    <p id="timer"></p>
+    <table class="table_moving" id="moving">
+      <tr id="moving_head">
+
+      </tr>
+    </table>
+    <div id="stop_points"></div>
+
+    <table class="table" id="tablePath">
+      <h4 style="margin-top: 50px;">Path:</h4>
+      <tr class="head-table">
+        <th>Checkpoint</th>
+        <th>Street</th>
+      </tr>
+    </table>
+    
+  </div>
+
+  <div class="main-text">
+    <h4 id = "maptitle" style="margin-bottom: 10px; margin-top:50px;" >Location at the moment:</h4>
+    <div id="mapdiv" style="width: 50%; height: 50%; position: relative; "></div>
+  </div>
+
+</div>
+</body>
+</html>

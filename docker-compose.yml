@@ -1,0 +1,108 @@
+version: '3'
+
+networks:
+    event_management_default:
+      driver: bridge
+      driver_opts:
+        com.docker.network.enable_ipv6: "false"
+      ipam:
+        driver: default
+        config:
+          - subnet: "172.18.0.0/24"
+services:
+    influxdb:
+        image: influxdb:latest
+        container_name: influxdb
+        networks:
+          event_management_default:
+              ipv4_address: 172.18.0.3
+        ports:
+            - '8083:8083'
+            - '8086:8086'
+            - '8090:8090'
+        volumes:
+          - influxdb:/var/lib/influxdb
+    rabbitmq:
+        build: ./rabbitmq
+        container_name: rabbitmq
+        networks:
+            event_management_default:
+                ipv4_address: 172.18.0.4
+        ports:
+           - '5672:5672'
+           - '15672'
+        expose:
+          - '5672'
+          - '15672'
+        volumes:
+          - rabbitmq:/var/lib/rabbitmq
+    postgres:
+        image: postgres
+        container_name: postgres
+        networks:
+          event_management_default:
+              ipv4_address: 172.18.0.5
+        environment:
+          POSTGRES_USER: "user"
+          POSTGRES_PASSWORD: "user"
+          POSTGRES_DB: "event-insights"
+          PGDATA: /var/lib/postgres
+        ports:
+          - '5432:5432'
+        volumes:
+          - ./rdb/init.psql:/docker-entrypoint-initdb.d/init.sql
+          - postgres:/var/lib/postgres
+    rest_api:
+        build: ./API
+        container_name: rest_api
+        depends_on:
+            - 'influxdb'
+            - 'postgres'
+        networks:
+          event_management_default:
+            ipv4_address: 172.18.0.6
+        ports:
+            - '8080:8080'
+        expose:
+            - '8080'
+        volumes:
+          - /etc/localtime:/etc/localtime
+    consumer:
+        build: ./broker
+        container_name: consumer
+        depends_on:
+            - 'influxdb'
+            - 'rabbitmq'
+            - 'postgres'
+        networks:
+            event_management_default:
+                ipv4_address: 172.18.0.7
+    dashboard:
+      build: ./dashboard
+      container_name: dashboard
+      depends_on:
+          - 'influxdb'
+          - 'rest_api'
+      networks:
+        event_management_default:
+          ipv4_address: 172.18.0.8
+      ports:
+          - "8000:8000"
+      expose:
+        - '8000'
+    participant:
+      build: ./participant
+      container_name: participant
+      depends_on:
+        - 'rest_api'
+      networks:
+        event_management_default:
+          ipv4_address: 172.18.0.9
+      ports:
+        - "8181:8181"
+      expose:
+        - "8181"
+volumes:
+  influxdb:
+  rabbitmq:
+  postgres:

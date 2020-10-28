@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Event Insights</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="http://www.openlayers.org/api/OpenLayers.js"></script>
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+  </head>
+  <!-- Add additional CSS in static file -->
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+
+  <script>
+    window.onload = function() {
+        var stage ="{{ stages }}";
+        var stage = stage.replace(/&#39;/g,"'");
+        var stage = JSON.parse('"' + stage + '"');
+        var stage = JSON.parse(stage.replace(/'/g,"\""));
+        
+        var keys = [];
+        for (var k in stage) keys.push(k);
+
+        for (var k in keys){
+            buildModal(keys[k],stage[keys[k]]);          
+            buildCard(keys[k]);
+            buildButtons(keys[k]); 
+        }
+        buildCloseButton();
+    }
+    function buildModal(palco,artistas){
+        createContainer(palco);
+        createModal(palco);
+        createDialog(palco);
+        createContent(palco);
+        createHeader(palco);
+        createTitleModal(palco);
+        createBodyModal(palco);
+        createBodyParagraph(palco,artistas);
+        createFooter(palco);
+        createButtonClose(palco);
+    }
+
+    function createContainer(palco){
+        var cont = document.createElement("div");
+        cont.setAttribute("class","container");
+        cont.setAttribute("id","container_"+palco.split(" ")[1]);
+        document.getElementById("body").appendChild(cont);
+    }
+
+    function createModal(palco){
+        var modal = document.createElement("div");
+        modal.setAttribute("class","modal fade");
+        modal.setAttribute("id","modal_"+palco.split(" ")[1]); //É ESTE ID
+        modal.setAttribute("role","dialog");
+        document.getElementById("container_"+palco.split(" ")[1]).appendChild(modal)
+    }
+
+    function createDialog(palco){
+        var dialog = document.createElement("div");
+        dialog.setAttribute("class","modal-dialog");
+        dialog.setAttribute("id","dialog_"+palco.split(" ")[1]);
+        document.getElementById("modal_"+palco.split(" ")[1]).appendChild(dialog);
+
+    }
+
+    function createContent(palco){
+        var content = document.createElement("div");
+        content.setAttribute("class","modal-content");
+        content.setAttribute("id","content_"+palco.split(" ")[1]);
+        document.getElementById("dialog_"+palco.split(" ")[1]).appendChild(content);
+    }
+
+    function createHeader(palco){
+        var divHeader = document.createElement("div");
+        divHeader.setAttribute("class","modal-header");
+        divHeader.setAttribute("id","divHeader_"+palco.split(" ")[1]);
+        document.getElementById("content_"+palco.split(" ")[1]).appendChild(divHeader);
+    }
+
+    function createTitleModal(palco){
+        var title_card = document.createElement("h4");
+        title_card.setAttribute("class","modal-title");
+        title_card.innerText = palco;
+        document.getElementById("divHeader_"+palco.split(" ")[1]).appendChild(title_card);
+    }
+
+    function createBodyModal(palco){
+        var divBody = document.createElement("div");
+        divBody.setAttribute("class","modal-body");
+        divBody.setAttribute("id","divBody_"+palco.split(" ")[1]);
+        document.getElementById("content_"+palco.split(" ")[1]).appendChild(divBody);
+    }
+
+    function createBodyParagraph(palco,artistas){
+        var p = document.createElement("p");
+        p.setAttribute("id","p_"+palco);
+        document.getElementById("divBody_"+palco.split(" ")[1]).appendChild(p);
+        for(var artist in artistas){
+            applyImages(palco,artistas[artist]);
+        }
+    }
+
+    function applyImages(palco,artista){
+        var img = document.createElement("img");
+        //imagens
+        var imagens ="{{ img }}";
+        var imagens = imagens.replace(/&#39;/g,"'");
+        var imagens = JSON.parse('"' + imagens + '"');
+        var imagens = JSON.parse(imagens.replace(/'/g,"\""));
+        img.setAttribute("src",imagens[artista]);
+        img.setAttribute("alt","not found");
+        img.setAttribute("style","width:200px;height:200px;");
+        img.setAttribute("class","img-responsive center-block");
+        document.getElementById("p_"+palco).appendChild(img);
+
+        var art = document.createElement("h3");
+        art.setAttribute("style","text-align: center;");
+        art.innerText = artista;
+        document.getElementById("p_"+palco).appendChild(art);
+        document.getElementById("p_"+palco).innerHTML+="<br>";
+    }
+
+    function createFooter(palco){
+        var footer = document.createElement("div");
+        footer.setAttribute("class","modal-footer");
+        footer.setAttribute("id","footer_"+palco.split(" ")[1]);
+        document.getElementById("content_"+palco.split(" ")[1]).appendChild(footer);
+    }
+
+    function createButtonClose(palco){
+        var but = document.createElement("button");
+        but.setAttribute("type","button");
+        but.setAttribute("class","btn btn-default");
+        but.setAttribute("data-dismiss","modal");
+        but.innerText ="Close";
+        document.getElementById("footer_"+palco.split(" ")[1]).appendChild(but);
+    }   
+
+    function buildCard(palco){
+        createDiv(palco);
+        createBody(palco);
+        createTitle(palco);
+        creatButton(palco);
+    }
+
+    function createDiv(palco){
+        var novaDiv = document.createElement("div");
+        novaDiv.setAttribute("class","card");
+        novaDiv.setAttribute("style","width: 18rem; margin-left: 20px; display: inline-block; width: 500px;");
+        novaDiv.setAttribute("id","div_"+palco.split(" ")[1]);
+        document.getElementById("div_cards").appendChild(novaDiv);
+    }
+
+    function createBody(palco){
+        var newDiv = document.createElement("div");
+        newDiv.setAttribute("class","card-body");
+        newDiv.setAttribute("style","display: inline-block;");
+        newDiv.setAttribute("id","div2_"+palco.split(" ")[1]);
+        document.getElementById("div_"+palco.split(" ")[1]).appendChild(newDiv);
+    }
+
+    function createTitle(palco){
+        var title = document.createElement("p");
+        title.setAttribute("class","card-text");
+        title.setAttribute("style","font-size:30px; color:black; ");
+        title.innerText = palco;
+        document.getElementById("div2_"+palco.split(" ")[1]).appendChild(title);
+    }
+
+    function creatButton(palco){
+        var dataTarget = "modal_"+palco.split(" ")[1];
+        var but = document.createElement("a");
+        but.setAttribute("data-toggle","modal");
+        but.setAttribute("data-target","#"+dataTarget);
+        but.setAttribute("class","btn btn-primary");
+        but.setAttribute("style","width: 100px");
+        but.innerText = "Artists";
+        document.getElementById("div2_"+palco.split(" ")[1]).appendChild(but);
+    }
+
+    function buildButtons(palco){
+        var coords = "{{coords}}";
+        var coords = coords.replace(/&#39;/g,"'");
+        var coords = JSON.parse('"' + coords + '"');
+        var coords = JSON.parse(coords.replace(/'/g,"\""));
+
+        var lat = coords[palco][1];
+        var lon = coords[palco][1];
+        buildButtonMap(palco,lat,lon);
+        
+
+    }
+
+    function buildButtonMap(palco,lat,lon){
+        var but = document.createElement("button");
+        but.setAttribute("id","btn_more_"+palco);
+        but.setAttribute("onclick","showMap("+lat+","+lon+")");
+        but.setAttribute("type","button");
+        but.setAttribute("class","btn btn-default btn-sm");
+        but.setAttribute("style"," margin-left:20px;");
+        but.innerText= palco+" ";
+
+        document.getElementById("show_map").appendChild(but);
+        buildSpan(palco);
+    }
+
+    function buildSpan(palco){
+        var span = document.createElement("span");
+        span.setAttribute("id","span_more_"+palco);
+        span.setAttribute("class","glyphicon glyphicon-plus-sign");
+        document.getElementById("btn_more_"+palco).appendChild(span);
+    }
+    
+    function buildCloseButton(){
+        var but = document.createElement("button");
+        but.setAttribute("id","btn_close");
+        but.setAttribute("onclick","clearDiv()");
+        but.setAttribute("type","button");
+        but.setAttribute("class","btn btn-default btn-sm");
+        but.setAttribute("style"," margin-left:20px;");
+        but.innerText="X";
+        document.getElementById("show_map").appendChild(but);
+    }
+
+    function clearDiv(){
+        document.getElementById("mapdiv").innerHTML = "";
+    }
+    function showMap(lat,lon){
+        clearDiv();
+        map = new OpenLayers.Map("mapdiv");
+        map.addLayer(new OpenLayers.Layer.OSM());
+
+        var lonLat = new OpenLayers.LonLat( lon ,lat)
+                .transform(
+                new OpenLayers.Projection("EPSG:4326"), // transform from WGS 1984
+                map.getProjectionObject() // to Spherical Mercator Projection
+                );
+
+        var zoom=18;
+
+        var markers = new OpenLayers.Layer.Markers( "Markers" );
+        map.addLayer(markers);
+
+        var icon = new OpenLayers.Icon("{% static 'img/marker_sprite.png' %}",
+                                    new OpenLayers.Size(34, 34));
+
+
+        markers.addMarker(new OpenLayers.Marker(lonLat,icon));
+
+        map.setCenter (lonLat, zoom);
+    }
+
+  </script>
+  
+</head>
+<body id="body">
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark" id="nav">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          Event Insights <span class="navbar-toggler-icon"></span>
+        </button>
+      
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="/">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="entrance">Entrance</a>
+            </li>
+            <li class="nav-item active">
+              <a class="nav-link" href="stages">Stages</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="toilet">Bathrooms</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="parking">Parking</a>
+            </li>
+        </div>
+    </nav>
+<div class="main-text">
+    <h3 style="margin-left:23px;margin-top:55px;font-family: Impact, Charcoal, sans-serif;font-size: 35px;">LineUp</h3>
+    <div class="row" id="div_cards" style="padding-top: 15px; margin-left: 2px; display: inline-block; width: 100%;">
+    
+    </div>
+    <h3 style="margin-left:23px; margin-top:55px;font-family: Impact, Charcoal, sans-serif;font-size: 35px;">How to go to...</h3>
+    <p id="show_map"></p>
+    
+    <div class="main-text">
+        
+        
+          
+        </p>
+        <div id="mapdiv" style="width: 50%; height: 50%; position: relative; "></div>
+      </div>
+    
+
+</div>
+
+</body>
+</html>

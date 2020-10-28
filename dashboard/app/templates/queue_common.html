@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  {% block title %}<title>Dashboard</title>{% endblock %}
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+  <!-- Add additional CSS in static file -->
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+
+  <script type="text/javascript">
+    window.onload = function() {
+      showValues();
+    }
+
+    function showValues(){
+      var queue = "{{ queue }}";
+      var queue = queue.replace(/&quot;/g,"'");
+      var queue = JSON.parse('"' + queue + '"');
+      var queue = JSON.parse(queue.replace(/'/g,"\""));
+
+      
+
+      keys = []
+      for (k in queue) keys.push(k);
+
+      //div
+      for (var j = 0; j < keys.length; j++) {
+        var divNova = document.createElement("div"); 
+        var id = "queue"+keys[j];
+        divNova.setAttribute("id",id);
+        divNova.setAttribute("style","margin-left: 50px;margin-top: 20px; height: 100px; width: 100%;");
+        document.getElementById("mainDiv").appendChild(divNova);
+      }
+
+      //h4
+      for (var j = 0; j < keys.length; j++) {
+        var title = document.createElement("h4");
+        title.setAttribute("style","margin-top:20px;");
+        if(queue[keys[j]][0]==0){
+          if (keys[j]=="Error"){
+            title.textContent = "Error";
+          }
+          else{
+            title.textContent = keys[j] +" : No queue!";
+          }
+        }
+        else{
+          title.textContent = keys[j];
+        }
+        document.getElementById("queue"+keys[j]).appendChild (title);
+      }
+      
+      //tabela1
+      for (var j = 0; j < keys.length; j++) {
+        var tabelaNova = document.createElement("TABLE");
+        tabelaNova.setAttribute("style","display: inline-block; margin-top:10px; margin-left: 23px;")
+        tabelaNova.setAttribute("id", "tabelaNova"+ keys[j]);
+        document.getElementById("queue"+keys[j]).appendChild(tabelaNova);
+      }
+
+      for (var j=0; j< keys.length; j++){ //Add first row
+          var new_row1 = document.createElement('tr');
+          new_row1.setAttribute("style","text-align: center; width: 200px; border-collapse: collapse; border: 1px solid black;")
+          new_row1.setAttribute("id","newRow1"+keys[j]);
+          document.getElementById("tabelaNova"+keys[j]).appendChild(new_row1);
+        }
+
+      for (var j=0; j<keys.length;j++){ //Add Heads
+          var new_head = document.createElement("TH");
+          new_head.setAttribute("style","text-align: center; width: 250px; border-collapse: collapse; border: 1px solid black;")
+          new_head.setAttribute("id","head"+keys[j]);
+          if (keys[j]=="Error"){
+            new_head.innerHTML = "Error getting Queue values";
+          }
+          else{
+            new_head.innerHTML = "Queue";
+          }
+          document.getElementById("newRow1"+keys[j]).appendChild(new_head);
+      }
+
+      for (var j=0; j<keys.length;j++){ //Add Second row
+          var new_row2 = document.createElement('tr');
+          new_row2.setAttribute("style","text-align: center; width: 200px; border-collapse: collapse; border: 1px solid black;")
+          new_row2.setAttribute("id","newRow2"+keys[j]);
+          document.getElementById("tabelaNova"+keys[j]).appendChild(new_row2);
+      }
+
+      for (var j=0; j<keys.length;j++){ //Add Content
+          var new_content = document.createElement("td");
+          new_content.setAttribute("style","text-align: center; width: 200px; border-collapse: collapse; border: 1px solid black;")
+          new_content.setAttribute("id","content"+keys[j]);
+          new_content.innerHTML = queue[keys[j]][0];
+          document.getElementById("newRow2"+keys[j]).appendChild(new_content);
+      }
+
+
+      //tabela2
+      for (var j = 0; j < keys.length; j++) {
+        var tabelaNova2 = document.createElement("TABLE");
+        tabelaNova2.setAttribute("style","display: inline-block; margin-top:10px; margin-left: 23px;")
+        tabelaNova2.setAttribute("id", "tabela2"+ keys[j]);
+        document.getElementById("queue"+keys[j]).appendChild(tabelaNova2);
+      }
+
+      for (var j=0; j< keys.length; j++){ //Add first row
+          var new_row3 = document.createElement('tr');
+          new_row3.setAttribute("style","text-align: center; width: 200px; border-collapse: collapse; border: 1px solid black;")
+          new_row3.setAttribute("id","newRow3"+keys[j]);
+          document.getElementById("tabela2"+keys[j]).appendChild(new_row3);
+        }
+
+      for (var j=0; j<keys.length;j++){ //Add Heads
+          var new_head2 = document.createElement("TH");
+          new_head2.setAttribute("style","text-align: center; width: 250px; border-collapse: collapse; border: 1px solid black;")
+          new_head2.setAttribute("id","head2"+keys[j]);
+          if (keys[j]=="Error"){
+            new_head2.innerHTML = "Error getting Average time";
+          }
+          else{
+            new_head2.innerHTML = "Average Time";
+          }
+          document.getElementById("newRow3"+keys[j]).appendChild(new_head2);
+      }
+
+      for (var j=0; j<keys.length;j++){ //Add Second row
+          var new_row4 = document.createElement('tr');
+          new_row4.setAttribute("style","text-align: center; width: 200px; border-collapse: collapse; border: 1px solid black;")
+          new_row4.setAttribute("id","newRow4"+keys[j]);
+          document.getElementById("tabela2"+keys[j]).appendChild(new_row4);
+      }
+
+      for (var j=0; j<keys.length;j++){ //Add Content
+          var new_content2 = document.createElement("td");
+          new_content2.setAttribute("style","text-align: center; width: 200px; border-collapse: collapse; border: 1px solid black;")
+          new_content2.setAttribute("id","content2"+keys[j]);
+          if (queue[keys[j]][1]>1){
+            new_content2.innerHTML = queue[keys[j]][1] + " minutes";
+          }
+          else{
+            new_content2.innerHTML = queue[keys[j]][1] + " minute";
+          }
+          
+          document.getElementById("newRow4"+keys[j]).appendChild(new_content2);
+      }
+    }
+  </script>
+</head>
+<body>
+  <!-- Side navigation -->
+    <div class="sidenav">
+      <a href="home" style="margin-top: 20px;">Home</a>
+      <a href="people">People</a>
+      <a href="parking">Parking</a>
+      <a href="meteorology">Meteorology</a>
+      <a href="gps">GPS</a>
+      <a href="sales">Sales</a>
+      <a href="activities">Activities</a>
+      <a href="wcs">WCs</a>
+      <a href="queue">Queues</a>
+      <a href="logout">Logout</a>
+    </div>
+
+<!-- Page content -->
+<div class="main" id="mainDiv">
+  {% block includes %}
+  Username: {{ user }}
+  {% endblock includes %}
+</div>
+</body>
+</html>

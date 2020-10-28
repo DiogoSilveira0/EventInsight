@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Event Insights</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="http://www.openlayers.org/api/OpenLayers.js"></script>
+  </head>
+  <!-- Add additional CSS in static file -->
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+  
+  <script type="text/javascript">
+  
+    function makeRow(key,parques,cor,i){
+      var parque = key;
+      var capacidade = parques[key]["free"]+parques[key]["full"];
+      var free = parques[key]["free"];
+      
+      var new_row = document.createElement('tr');
+      new_row.setAttribute("class","elem-table");
+      new_row.insertCell(0).innerHTML = parque;
+      new_row.insertCell(1).innerHTML = capacidade;
+      new_row.insertCell(2).innerHTML = free;
+      new_row.insertCell(3).innerHTML = "";
+      document.getElementById("tablePark").appendChild(new_row);
+      applyColor(i,key,cor);
+    }
+
+    function applyColor(i,key,cor){
+      var x = document.getElementById("tablePark").rows[i+1].cells[3];
+      x.style.backgroundColor = cor;  
+    }
+
+
+    function addOnClick(name){
+      var btn = document.getElementById("btn_"+name);
+      btn.setAttribute("onclick","showMap(btn_"+name+")");
+    }
+
+    function showMap(name){
+      //clear div
+      document.getElementById("mapdiv").innerHTML = "";
+
+      //mapa 
+      var name = (name.id).split("_")[1];
+
+      var local ="{{ localizacao }}";
+  
+      var local = local.replace(/&quot;/g,"'");
+      var local = JSON.parse('"' + local + '"');
+      var local = JSON.parse(local.replace(/'/g,"\""));
+
+      var keys = [];
+      for (var k in local) keys.push(k);
+
+      var coord = local[name];
+      var lat = coord[0];
+      var lon = coord[1];
+      
+      makeMap(lat,lon);
+      
+    }
+    
+    function createParagraph(name){
+      var para = document.createElement("p");
+      para.setAttribute("id",name);
+      document.getElementById("plus_buttons").appendChild(para);
+    }
+
+    function createButton(name){
+      var btn = document.createElement("button");
+      btn.setAttribute("id","btn_"+name);
+      btn.setAttribute("type","button");
+      btn.setAttribute("class","btn btn-default btn-sm");
+      btn.setAttribute("style","margin-top:20px; margin-left:20px;");
+      document.getElementById(name).appendChild(btn);
+      btn.innerText = name+ " ";
+
+    }
+
+    function createSpan(name){
+      var span = document.createElement("span");
+      span.setAttribute("id","span_"+name);
+      span.setAttribute("class","glyphicon glyphicon-plus-sign");
+      document.getElementById("btn_"+name).append(span);
+    }
+
+    function makeMap(lat,lon){
+      map = new OpenLayers.Map("mapdiv");
+      map.addLayer(new OpenLayers.Layer.OSM());
+
+      var lonLat = new OpenLayers.LonLat( lon ,lat)
+            .transform(
+              new OpenLayers.Projection("EPSG:4326"), // transform from WGS 1984
+              map.getProjectionObject() // to Spherical Mercator Projection
+            );
+
+      var zoom=18;
+
+      var markers = new OpenLayers.Layer.Markers( "Markers" );
+      map.addLayer(markers);
+
+      var icon = new OpenLayers.Icon("{% static 'img/marker_sprite.png' %}",
+                                new OpenLayers.Size(34, 34));
+
+
+      markers.addMarker(new OpenLayers.Marker(lonLat,icon));
+
+      map.setCenter (lonLat, zoom);
+    }
+
+    window.onload = function(){
+
+          
+          //botoes
+          var parques ="{{ parques }}";
+  
+          var parques = parques.replace(/&quot;/g,"'");
+          var parques = JSON.parse('"' + parques + '"');
+          var parques = JSON.parse(parques.replace(/'/g,"\""));
+   
+          var keys = [];
+          for (var k in parques) keys.push(k);
+
+          for (var i = 0; i < keys.length; i++) {
+            createParagraph(keys[i]);
+            createButton(keys[i]);
+            createSpan(keys[i]);
+            addOnClick(keys[i]);
+          }
+
+
+          var cores = "{{ cores }}";
+          
+          var cores = cores.replace(/&#39;/g,"'");
+          var cores = JSON.parse('"' + cores + '"');
+          var cores = JSON.parse(cores.replace(/'/g,"\""));
+
+          //Parques
+          for (var i = 0; i < keys.length; i++) {
+            makeRow(keys[i],parques,cores[keys[i]],i);
+          }
+        }
+    </script>
+
+    
+
+</head>
+<body>
+
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark" id="nav">
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      Event Insights <span class="navbar-toggler-icon"></span>
+    </button>
+  
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="/">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="entrance">Entrance</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="stages">Stages</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="toilet">Bathrooms</a>
+        </li>
+        <li class="nav-item active">
+          <a class="nav-link" href="parking">Parking</a>
+        </li>
+    </div>
+</nav>
+
+<div class="main-text" id="main">
+
+  <table class="table" id="tablePark">
+    <h4 style="margin-top: 50px;font-size: 25px;font-family: Impact, Charcoal, sans-serif;font-size: 35px;">Parking lots Available:</h4>
+    <tr class="head-table">
+      <th style="text-align: center;">Parking lot</th>
+      <th style="text-align: center;">Capacity</th>
+      <th style="text-align: center;">Available spots</th>
+      <th style="text-align: center;"></th>
+    </tr>
+  </table>
+  <h3 style="margin-top:55px;font-family: Impact, Charcoal, sans-serif;font-size: 35px;">How to go to...</h3>
+
+  <div class="row" id="plus_buttons">
+    
+  </div>  
+  
+  
+  <div class="main-text">
+    <div id="mapdiv" style="width: 50%; height: 50%; position: relative; "></div>
+  </div>
+
+
+</div>
+
+</div>
+
+
+</body>
+</html>

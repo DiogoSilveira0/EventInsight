@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Event Insights</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="http://www.openlayers.org/api/OpenLayers.js"></script>
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="static/fontawesome-free-5.13.0-web/css/all.css" rel="stylesheet"> <!--load all styles -->
+    <script src="http://www.openlayers.org/api/OpenLayers.js"></script>
+  </head>
+  <!-- Add additional CSS in static file -->
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+  <link rel="stylesheet" href="{% static 'css/weather-icons-wind.min.css' %}">
+  <link rel="stylesheet" href="{% static 'css/weather-icons-wind.css' %}">
+  <link rel="stylesheet" href="{% static 'css/weather-icons.css' %}">
+  <link rel="stylesheet" href="{% static 'css/weather-icons.min.css' %}">
+
+  <script>
+    window.setInterval(function(){
+      var id = document.getElementsByClassName("carousel-item active")[0].id;
+      var id_imagem = document.getElementById(id).children[0].id;
+      var btn = document.getElementById("btn_more_artist");
+      btn.setAttribute("data-target","#modal_"+id_imagem.split(" ").slice(-1)[0]);
+    }, 500);
+
+    window.onload = function() {
+      var artists ="{{ artists }}";
+      var artists = artists.replace(/&#39;/g,"'");
+      var artists = JSON.parse('"' + artists + '"');
+      var artists = JSON.parse(artists.replace(/'/g,"\""));
+
+      var keys = [];
+      for (var k in artists) keys.push(k);
+
+      for(var i=0;i<keys.length;i++){
+        buildCarouselDiv(keys[i],artists[keys[i]],i);
+        buildModal(keys[i]);
+      }
+
+      var id = document.getElementsByClassName("carousel-item active")[0].id;
+      var id_imagem = document.getElementById(id).children[0].id;
+      var btn = document.getElementById("btn_more_artist");
+      console.log("data-target","#"+id_imagem.split(" ").slice(-1)[0]);
+      btn.setAttribute("data-target","#"+id_imagem.split(" ").slice(-1)[0]);
+
+      createBeforeCompress();
+      createCompress();
+      createOnStage();
+      createDesfile();
+    }
+
+    function createDesfile(){
+      var nome ="{{ nome_desfile }}";
+      var nome = nome.replace(/&#39;/g,"'");
+      var nome = JSON.parse('"' + nome + '"');
+      var nome = JSON.parse(nome.replace(/'/g,"\""));
+
+      nome = nome["name"];
+
+
+      var desfile ="{{ desfile }}";
+      var desfile = desfile.replace(/&#39;/g,"'");
+      var desfile = JSON.parse('"' + desfile + '"');
+      var desfile = JSON.parse(desfile.replace(/'/g,"\""));
+
+      // <h3 style="font-family: Impact, Charcoal, sans-serif;" id="on_stage">On stage: </h3> 
+      var title_desfile = document.createElement("h3");
+      title_desfile.setAttribute("style","font-family: Impact, Charcoal, sans-serif; margin-left: 40px; margin-top: 100px; ");
+      title_desfile.innerText=nome;
+      document.getElementById("desfile").appendChild(title_desfile);
+      
+      var lat;
+      var lon; 
+
+      if(desfile["current"]==1){
+        var status = document.createElement("h3");
+        status.setAttribute("style","font-family: Impact, Charcoal, sans-serif; margin-left: 40px; color: #7FFFD4");
+        status.innerHTML+="Not started yet";
+        document.getElementById("desfile").appendChild(status);
+        
+      }
+      
+      else if(desfile["current"]==2){
+        var status = document.createElement("h3");
+        status.setAttribute("style","font-family: Impact, Charcoal, sans-serif; margin-left: 40px; color: green");
+        if(desfile["moving"]=="True"){
+          status.innerHTML+="LIVE & "+"MOVING";
+        }
+        else{
+          status.innerHTML+="LIVE & "+"STOPPED";
+          //
+        }
+        document.getElementById("desfile").appendChild(status);
+
+        //<div id="mapdiv" style="width: 50%; height: 50%; position: relative; "></div>
+        var mapdiv = document.createElement("div");
+        mapdiv.setAttribute("id","mapdiv");
+        mapdiv.setAttribute("style","width: 50%; height: 500px; position: relative;  ");
+        document.getElementById("desfile").appendChild(mapdiv);
+        
+
+        var coord = "{{ pos }}";
+        var coord = coord.replace(/&#39;/g,"'");
+        var coord = JSON.parse('"' + coord + '"');
+        var coord = JSON.parse(coord.replace(/'/g,"\""));
+          
+        lat = coord["lat"];
+        lon = coord["lon"];
+      }
+
+      else if(desfile["current"]==3){
+        var status = document.createElement("h3");
+        status.setAttribute("style","font-family: Impact, Charcoal, sans-serif; margin-left: 40px; color: green");
+        status.innerHTML+="Finished";
+        document.getElementById("desfile").appendChild(status);
+      }
+      else{ return; }
+
+      makeMap(lat,lon);
+    }
+
+    function makeMap(lat,lon){
+      map = new OpenLayers.Map("mapdiv");
+      
+      map.addLayer(new OpenLayers.Layer.OSM());
+
+      var lonLat = new OpenLayers.LonLat( lon ,lat)
+            .transform(
+              new OpenLayers.Projection("EPSG:4326"), // transform from WGS 1984
+              map.getProjectionObject() // to Spherical Mercator Projection
+            );
+
+      var zoom=18;
+
+      var markers = new OpenLayers.Layer.Markers( "Markers" );
+      map.addLayer(markers);
+
+      var icon = new OpenLayers.Icon("{% static 'img/marker_sprite.png' %}",
+                                new OpenLayers.Size(34, 34));
+
+
+      markers.addMarker(new OpenLayers.Marker(lonLat,icon));
+
+      map.setCenter (lonLat, zoom);
+    }
+
+    function createOnStage(){
+      var activities ="{{ activities }}";
+      var activities = activities.replace(/&#39;/g,"'");
+      var activities = JSON.parse('"' + activities + '"');
+      var activities = JSON.parse(activities.replace(/'/g,"\""));
+
+      var keys = [];
+      for (var k in activities) keys.push(k); //DIAS A POR NO GRAFICO
+      
+      for(var j=0;j<keys.length;j++){
+        buildOnStage(keys[j],activities[keys[j]][0],activities[keys[j]][1]);
+      }
+    }
+
+    function buildOnStage(stage,artist,status){
+      var onst = document.createElement("h3");
+      onst.setAttribute("style","font-family: Impact, Charcoal, sans-serif; margin-top: 60px; margin-bottom: -12px;");
+      onst.setAttribute("id","on_stage_"+stage);
+
+      onst.innerHTML+="At the moment on "+stage+": "+artist+ " ";
+      document.getElementById("stage").appendChild(onst);
+
+      appendStatus(stage,status);
+    }
+
+    function appendStatus(stage,status){
+      var st = document.createElement("h3");
+      if(status=="on"){
+        st.setAttribute("style","font-family: Impact, Charcoal, sans-serif; color:green;  display: inline-block; margin-left: 10px;");
+        st.innerText+="LIVE";
+      }
+      else if(status=="late10"){
+        st.setAttribute("style","font-family: Impact, Charcoal, sans-serif; color:red;  display: inline-block; margin-left: 10px;");
+        st.innerText+="10 minutes late";
+      }
+      else if(status=="late20"){
+        st.setAttribute("style","font-family: Impact, Charcoal, sans-serif; color:red;  display: inline-block; margin-left: 10px;");
+        st.innerText+="20 minutes late";
+      }
+      else if(status=="latePlus20"){
+        st.setAttribute("style","font-family: Impact, Charcoal, sans-serif; color:red;  display: inline-block; margin-left: 10px;");
+        st.innerText+="+20 minutes late";
+      }
+      
+      //st.innerText+=status;
+      document.getElementById("on_stage_"+stage).appendChild(st);
+
+    }
+    function createBeforeCompress(){
+      var forecast ="{{ forecast }}";
+      var forecast = forecast.replace(/&#39;/g,"'");
+      var forecast = JSON.parse('"' + forecast + '"');
+      var forecast = JSON.parse(forecast.replace(/'/g,"\""));
+
+      var rain = forecast["prob_rain"];
+      var wind = forecast["wind"];
+
+      if(rain>=60 && rain<75){
+        var rain_msg = "Raining Probability, take your umbrella!";
+        if(wind>=3 && wind<6){
+          var wind_msg = "Moderate Wind";
+          
+        }
+        else if(wind>=6 && wind<8){
+          var wind_msg = "Watch out! Strong winds";
+          
+        }
+        else if(wind>=8){
+          var wind_msg = "Watch out! Fresh gale";
+          
+        }
+        else{
+          var wind_msg = "";
+          
+        }
+      }
+      else if(rain>=75){
+        var rain_msg = "High raining Probability, take your umbrella!";
+        if(wind>=3 && wind<6){
+          var wind_msg = "Moderate Wind";
+          ;
+        }
+        else if(wind>=6 && wind<8){
+          var wind_msg = "Watch out! Strong winds";
+          
+        }
+        else if(wind>=8){
+          var wind_msg = "Watch out! Fresh gale";
+          
+        }
+        else{
+          var wind_msg="";
+          
+        }
+      }
+      else{
+        var rain_msg = "";
+        if(wind>=3 && wind<6){
+          var wind_msg = "Moderate Wind";
+          
+        }
+        else if(wind>=6 && wind<8){
+          var wind_msg = "Watch out! Strong winds";
+          
+        }
+        else if(wind>=8){
+          var wind_msg = "Watch out! Fresh gale";
+          
+        }
+        else{
+          var wind_msg="";
+          
+        }
+      }
+
+      
+      if(rain_msg=="" && wind_msg==""){
+        document.getElementById("bar").remove();
+        return false;
+      }
+      
+      var title = document.createElement("h4");
+      title.setAttribute("style","color: white; text-align: center; display: inline-block;");
+      title.setAttribute("id","title-before");
+      document.getElementById("before-compress").appendChild(title);
+
+      //before-compress
+      if(rain_msg!=""){
+        var icon_rain = document.createElement("i");
+        icon_rain.setAttribute("class","wi wi-day-rain");
+        icon_rain.setAttribute("style","margin-left:20px;margin-right:20px;");
+        document.getElementById("title-before").appendChild(icon_rain);
+        title.innerHTML += rain_msg+" ";
+      }
+      
+      if(wind_msg!=""){
+        var icon_wind = document.createElement("i");
+        icon_wind.setAttribute("class","wi wi-strong-wind");
+        icon_wind.setAttribute("style","margin-left:20px;margin-right:20px;");
+        document.getElementById("title-before").appendChild(icon_wind);
+        title.innerHTML += wind_msg+" ";
+      }
+      
+      var btn = document.createElement("button");
+      btn.setAttribute("class","navbar-toggler");
+      btn.setAttribute("style","margin-left:20px;");
+      btn.setAttribute("type","button");
+      btn.setAttribute("data-toggle","collapse");
+      btn.setAttribute("data-target","#navbarToggleExternalContent");
+      btn.setAttribute("aria-controls","navbarToggleExternalContent");
+      btn.setAttribute("aria-expanded","false");
+      btn.setAttribute("aria-label","Toggle navigation");
+      btn.setAttribute("id","btn-plus");
+      document.getElementById("before-compress").appendChild(btn);
+        
+      var plus = document.createElement("span");
+      plus.setAttribute("class","glyphicon glyphicon-plus-sign");
+      document.getElementById("btn-plus").appendChild(plus);
+      
+      return true;
+      
+    }
+
+    function createCompress(){
+      //compress-bar
+      var forecast ="{{ forecast }}";
+      var forecast = forecast.replace(/&#39;/g,"'");
+      var forecast = JSON.parse('"' + forecast + '"');
+      var forecast = JSON.parse(forecast.replace(/'/g,"\""));
+
+      var max = forecast["t_max"];
+      var min = forecast["t_min"];
+      var rain = forecast["prob_rain"];
+      var wind = forecast["wind"];
+
+      //h4
+      var title = document.createElement("h4");
+      title.setAttribute("class","text-white");
+      title.setAttribute("style","text-align:center;");
+      title.setAttribute("id","title-nav");
+      document.getElementById("compress-bar").appendChild(title);
+
+      //temperature max
+      var tmax = document.createElement("i");
+      tmax.setAttribute("class","fa fa-thermometer-full");
+      document.getElementById("title-nav").appendChild(tmax);
+      title.innerHTML+=" Higher temperatures: "+max+" ";
+
+      //temperature min
+      var tmin = document.createElement("i");
+      tmin.setAttribute("class","fas fa-temperature-low");
+      tmin.setAttribute("style","margin-left:20px");
+      document.getElementById("title-nav").appendChild(tmin);
+      title.innerHTML+="Lower Temperatures: "+min+" ";
+
+      //rain prob
+      var rainprob = document.createElement("i");
+      rainprob.setAttribute("class","wi wi-day-rain");
+      rainprob.setAttribute("style","margin-left:20px");
+      document.getElementById("title-nav").appendChild(rainprob);
+      title.innerHTML+="Rain Probability: "+rain+" ";
+      
+      //wind 
+      var windscale = document.createElement("i");
+      windscale.setAttribute("class","wi wi-strong-wind");
+      windscale.setAttribute("style","margin-left:20px");
+      document.getElementById("title-nav").appendChild(windscale);
+      title.innerHTML+=" Wind: "+wind+" ";
+
+    }
+
+    
+    
+    function buildCarouselDiv(artist,photo,i){
+      var novaDiv = document.createElement("div");
+      if(i==0){
+        novaDiv.setAttribute("class","carousel-item active");
+      }
+      else{
+        novaDiv.setAttribute("class","carousel-item");
+      }
+      
+      novaDiv.setAttribute("id","div_"+artist);
+      document.getElementById("inner").appendChild(novaDiv);
+      buildCarouselImg(artist,photo);
+    }
+
+    function buildCarouselImg(artist,photo){
+      var novaImg = document.createElement("img");
+      novaImg.setAttribute("class","d-block rounded mx-auto d-block");
+      novaImg.setAttribute("id","img_"+artist);
+      novaImg.setAttribute("style","margin-top: 50px; width: 500px; height: 400px;");
+      novaImg.setAttribute("src",photo);
+      novaImg.setAttribute("alt",artist);
+      document.getElementById("div_"+artist).appendChild(novaImg);
+    }
+    
+
+    function buildModal(artist){
+      createContainer(artist);
+      createModal(artist);
+      createDialog(artist);
+      createContent(artist);
+      createHeader(artist);
+      createTitleModal(artist);
+      createBodyModal(artist);
+      createBodyParagraph(artist);
+      createFooter(artist);
+      createButtonClose(artist);
+    }
+
+    
+    function createContainer(artist){
+        var cont = document.createElement("div");
+        cont.setAttribute("class","container");
+        cont.setAttribute("id","container_"+artist.split(" ").slice(-1)[0]);
+        document.getElementById("container_stuff").appendChild(cont);
+    }
+
+    function createModal(artist){
+        var modal = document.createElement("div");
+        modal.setAttribute("class","modal fade");
+        console.log(artist);
+        console.log("modal_"+artist.split(" ").slice(-1)[0]);
+        modal.setAttribute("id","modal_"+artist.split(" ").slice(-1)[0]); //É ESTE ID
+        modal.setAttribute("role","dialog");
+        document.getElementById("container_"+artist.split(" ").slice(-1)[0]).appendChild(modal)
+    }
+
+    function createDialog(artist){
+        var dialog = document.createElement("div");
+        dialog.setAttribute("class","modal-dialog");
+        dialog.setAttribute("id","dialog_"+artist.split(" ").slice(-1)[0]);
+        document.getElementById("modal_"+artist.split(" ").slice(-1)[0]).appendChild(dialog);
+
+    }
+
+    function createContent(artist){
+        var content = document.createElement("div");
+        content.setAttribute("class","modal-content");
+        content.setAttribute("id","content_"+artist.split(" ").slice(-1)[0]);
+        document.getElementById("dialog_"+artist.split(" ").slice(-1)[0]).appendChild(content);
+    }
+
+    function createHeader(artist){
+        var divHeader = document.createElement("div");
+        divHeader.setAttribute("class","modal-header");
+        divHeader.setAttribute("id","divHeader_"+artist.split(" ").slice(-1)[0]);
+        document.getElementById("content_"+artist.split(" ").slice(-1)[0]).appendChild(divHeader);
+    }
+
+    function createTitleModal(artist){
+        var title_card = document.createElement("h4");
+        title_card.setAttribute("class","modal-title");
+        title_card.innerText = artist;
+        document.getElementById("divHeader_"+artist.split(" ").slice(-1)[0]).appendChild(title_card);
+    }
+
+    function createBodyModal(artist){
+        var divBody = document.createElement("div");
+        divBody.setAttribute("class","modal-body");
+        divBody.setAttribute("id","divBody_"+artist.split(" ").slice(-1)[0]);
+        document.getElementById("content_"+artist.split(" ").slice(-1)[0]).appendChild(divBody);
+    }
+
+    function createBodyParagraph(artist){
+        var p = document.createElement("p");
+        p.setAttribute("id","p_"+artist);
+        document.getElementById("divBody_"+artist.split(" ").slice(-1)[0]).appendChild(p);
+        applyImages(artist);
+    }
+
+    function applyImages(artist){
+        var about ="{{ about }}";
+        var about = about.replace(/&#39;/g,"'");
+        var about = JSON.parse('"' + about + '"');
+        var about = JSON.parse(about.replace(/'/g,"\""));
+        
+        var art = document.createElement("h3");
+        art.setAttribute("style","text-align: center;");
+        art.innerText = about[artist];
+        document.getElementById("p_"+artist).appendChild(art);
+        document.getElementById("p_"+artist).innerHTML+="<br>";
+    }
+
+    function createFooter(artist){
+        var footer = document.createElement("div");
+        footer.setAttribute("class","modal-footer");
+        footer.setAttribute("id","footer_"+artist.split(" ").slice(-1)[0]);
+        document.getElementById("content_"+artist.split(" ").slice(-1)[0]).appendChild(footer);
+    }
+
+    function createButtonClose(artist){
+        var but = document.createElement("button");
+        but.setAttribute("type","button");
+        but.setAttribute("class","btn btn-default");
+        but.setAttribute("data-dismiss","modal");
+        but.innerText ="Close";
+        document.getElementById("footer_"+artist.split(" ").slice(-1)[0]).appendChild(but);
+    }   
+    
+  </script>
+
+  
+</head>
+<!-- Add additional CSS in static file -->
+{% load static %}
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+<!--
+
+-->
+
+<body id="body">
+
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark" id="nav">
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        Event Insights <span class="navbar-toggler-icon"></span>
+      </button>
+    
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item">
+            <a class="nav-link active" href="/">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="entrance">Entrance</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="stages">Stages</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="toilet">Bathrooms</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="parking">Parking</a>
+          </li>
+      </div>
+  </nav>
+
+  <div id="container_stuff">
+
+  </div>
+  
+  <div id="myCarousel" class="carousel slide" data-ride="carousel" data-interval="2000">
+    <ol class="carousel-indicators" id="indicators">
+    
+    </ol>
+    <div class="carousel-inner" id="inner">
+    </div>
+  
+  
+    <div class="container">
+      <div class="row">
+        <div class="col text-center">
+          <button id="btn_more_artist" type="button"  class="btn btn-default btn-sm" data-toggle="modal" style="margin-top:20px; margin-left:20px;">
+            More
+            <span id="span_more_artist" class="glyphicon glyphicon-plus-sign"></span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  
+  <div class="pos-f-t" style="margin-top: 20px; margin:0 5% 0 5%;">
+
+    <div style="display: inline-block; width: 100%; height: 100%;">
+     
+      <div style="display: inline-block;" id="stage">
+      </div>
+      <div style="margin-left: 2%; display: inline-block;" id="desfile">
+      </div>
+    </div>
+    
+  </div>
+  
+
+  <div class="collapse" id="navbarToggleExternalContent" style="margin-top:117px; width: 100%;z-index: 12;background-color:black;position: fixed;text-align: center;">
+    <div class="bg-dark" id="compress-bar" style="width: 100%; margin-bottom: 10px; z-index: 12;background-color:black;position: fixed;text-align: center;">
+    </div>
+  </div>
+  
+
+  <a data-toggle="collapse" data-target="#navbarToggleExternalContent">
+    <nav class="navbar bg-dark" id="bar" style="width: 100%;height: 50px;margin-top:0px;margin-bottom: 0px;z-index: 12;position: fixed;bottom: 0; text-align: center;">
+      <div id="before-compress"  class="bg-dark" style="width: 100%;height: 50px;margin-bottom: 0px;z-index: 12; position: fixed;bottom: 0; text-align: center;">
+      </div>
+    </nav> 
+  </a> 
+
+</body>
+</html>
+
+</body>
+</html>

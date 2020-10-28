@@ -1,0 +1,178 @@
+delete from artists;
+delete from stages;
+delete from wcs;
+delete from parks;
+delete from routes;
+delete from parades;
+delete from activities;
+delete from users_events;
+delete from loc_sensors;
+delete from events;
+delete from sensors;
+
+-- este ficheiro deve ser executado apenas para fins de simulacao
+
+alter sequence sensors_id_seq restart with 1;
+alter sequence events_id_seq restart with 1;
+
+-- filas
+insert into sensors (type) values ('queues'); --1
+insert into sensors (type) values ('queues'); --2
+-- pessoas
+insert into sensors (type) values ('people'); --3
+insert into sensors (type) values ('people'); --4
+-- parques
+insert into sensors (type) values ('parks');  --5
+insert into sensors (type) values ('parks');  --6
+-- toilet
+insert into sensors (type) values ('toilet');    --7 m
+insert into sensors (type) values ('toilet');    --8 m
+insert into sensors (type) values ('toilet');    --9 m
+insert into sensors (type) values ('toilet');    --10 w
+insert into sensors (type) values ('toilet');    --11 w
+insert into sensors (type) values ('toilet');    --12 w
+-- sells
+insert into sensors (type) values ('sells');     --13
+insert into sensors (type) values ('sells');     --14
+insert into sensors (type) values ('sells');     --15
+-- activities
+insert into sensors (type) values ('activities');--16
+insert into sensors (type) values ('activities');--17
+--gps
+insert into sensors (type) values ('gps');      --18
+
+insert into events(name, local, lat, lon, address, open_at, close_at) values ('Carnaval', 'Aveiro', 40.8570, -8.6324, 'Estrada da Marinha, Ovar', '14:00:00', '02:00:00');
+insert into events(name, local, lat, lon, address, open_at, close_at) values ('S. Paio', 'Aveiro', 40.5320, -8.7467, 'Torreira, Aveiro', '23:00:00', '04:00:00');
+
+insert into users_events(username, event) values ('joao', 1);
+insert into users_events(username, event) values ('admin', 1);
+
+insert into loc_sensors (sensor, event, zone) values (1, 1, 'entrance');
+insert into loc_sensors (sensor, event, zone) values (2, 1, 'WC');
+insert into loc_sensors (sensor, event, zone) values (3, 1, 'Palco MEO');
+insert into loc_sensors (sensor, event, zone) values (4, 1, 'Palco Vodafone');
+insert into loc_sensors (sensor, event, zone) values (5, 1, 'Parque Sul');
+insert into loc_sensors (sensor, event, zone) values (6, 1, 'Parque Norte');
+insert into loc_sensors (sensor, event, zone) values (7, 1, 'WC Homens');
+insert into loc_sensors (sensor, event, zone) values (8, 1, 'WC Homens');
+insert into loc_sensors (sensor, event, zone) values (9, 1, 'WC Homens');
+insert into loc_sensors (sensor, event, zone) values (10, 1, 'WC Mulheres');
+insert into loc_sensors (sensor, event, zone) values (11, 1, 'WC Mulheres');
+insert into loc_sensors (sensor, event, zone) values (12, 1, 'WC Mulheres');
+insert into loc_sensors (sensor, event, zone) values (13, 1, 'Bilhetes');
+insert into loc_sensors (sensor, event, zone) values (14, 1, 'Cervejas');
+insert into loc_sensors (sensor, event, zone) values (15, 1, 'Cachorros');
+insert into loc_sensors (sensor, event, zone) values (16, 1, 'Palco MEO');
+insert into loc_sensors (sensor, event, zone) values (17, 1, 'Palco Vodafone');
+insert into loc_sensors (sensor, event, zone) values (18, 1, 'Desfile');
+
+-- evento começa
+insert into activities (event, activity, scheduled, zone) values (1, 'Richie Campbell', '2020-07-11 21:00:00', 'Palco MEO');
+insert into activities (event, activity, scheduled, zone) values (1, 'Slow J', '2020-07-11 22:00:00', 'Palco MEO');
+insert into activities (event, activity, scheduled, zone) values (1, 'Meduza', '2020-07-11 23:00:00', 'Palco MEO');
+insert into activities (event, activity, scheduled, zone) values (1, 'Quim Barreiros', '2020-07-11 21:00:00', 'Palco Vodafone');
+insert into activities (event, activity, scheduled, zone) values (1, 'Italo Brothers', '2020-07-11 22:00:00', 'Palco Vodafone');
+insert into activities (event, activity, scheduled, zone) values (1, 'Mundo Segundo', '2020-07-11 23:00:00', 'Palco Vodafone');
+
+insert into activities (event, activity, scheduled, zone) values (1, 'Carolina Deslandes', '2020-07-12 21:00:00', 'Palco MEO');
+insert into activities (event, activity, scheduled, zone) values (1, 'Vini Vici', '2020-07-12 22:00:00', 'Palco MEO');
+insert into activities (event, activity, scheduled, zone) values (1, 'Quim das Remisturas', '2020-07-12 23:00:00', 'Palco MEO');
+insert into activities (event, activity, scheduled, zone) values (1, 'Xutos & Pontapes', '2020-07-12 21:00:00', 'Palco Vodafone');
+insert into activities (event, activity, scheduled, zone) values (1, 'Madredeus', '2020-07-12 22:00:00', 'Palco Vodafone');
+insert into activities (event, activity, scheduled, zone) values (1, 'Ornatos Violeta', '2020-07-12 23:00:00', 'Palco Vodafone');
+
+insert into parades(name, event, start_time, start_lat, start_lon, end_lat, end_lon) values('Desfile', 1, '2020-07-13 15:00:00', 40.6430, -8.6577, 40.6422, -8.6569);
+
+insert into activities (event, activity, scheduled, zone) values (1, 'Deejay Telio', '2020-07-14 21:00:00', 'Palco MEO');
+insert into activities (event, activity, scheduled, zone) values (1, 'Supa Squad', '2020-07-14 22:00:00', 'Palco MEO');
+insert into activities (event, activity, scheduled, zone) values (1, 'Blaya', '2020-07-14 23:00:00', 'Palco MEO');
+insert into activities (event, activity, scheduled, zone) values (1, 'Lartiste & Caroliina', '2020-07-14 21:00:00', 'Palco Vodafone');
+insert into activities (event, activity, scheduled, zone) values (1, 'Ludmilla', '2020-07-14 22:00:00', 'Palco Vodafone');
+insert into activities (event, activity, scheduled, zone) values (1, 'Nego do Borel', '2020-07-14 23:00:00', 'Palco Vodafone');
+
+insert into activities (event, activity, scheduled, zone) values (1, 'Topkillaz', '2020-07-15 21:00:00', 'Palco MEO');
+insert into activities (event, activity, scheduled, zone) values (1, 'MC Gomes', '2020-07-15 22:00:00', 'Palco MEO');
+insert into activities (event, activity, scheduled, zone) values (1, 'Mc Kevin O Cris', '2020-07-15 23:00:00', 'Palco MEO');
+insert into activities (event, activity, scheduled, zone) values (1, 'Mc Rebecca', '2020-07-15 21:00:00', 'Palco Vodafone');
+insert into activities (event, activity, scheduled, zone) values (1, 'Os Cretinos', '2020-07-15 22:00:00', 'Palco Vodafone');
+insert into activities (event, activity, scheduled, zone) values (1, 'MC Gustta', '2020-07-15 23:00:00', 'Palco Vodafone');
+
+insert into activities (event, activity, scheduled, zone) values (1, 'Bryan Adams', '2020-07-16 21:00:00', 'Palco MEO');
+insert into activities (event, activity, scheduled, zone) values (1, 'Adelle', '2020-07-16 22:00:00', 'Palco MEO');
+insert into activities (event, activity, scheduled, zone) values (1, 'Anitta', '2020-07-16 23:00:00', 'Palco MEO');
+insert into activities (event, activity, scheduled, zone) values (1, 'Expensive Soul', '2020-07-16 21:00:00', 'Palco Vodafone');
+insert into activities (event, activity, scheduled, zone) values (1, 'Dany Ocean', '2020-07-16 22:00:00', 'Palco Vodafone');
+insert into activities (event, activity, scheduled, zone) values (1, 'Lana del Rey', '2020-07-16 23:00:00', 'Palco Vodafone');
+
+insert into activities (event, activity, scheduled, zone) values (1, 'Manian', '2020-07-17 21:00:00', 'Palco MEO');
+insert into activities (event, activity, scheduled, zone) values (1, 'Prof Jam', '2020-07-17 22:00:00', 'Palco MEO');
+insert into activities (event, activity, scheduled, zone) values (1, 'Tony Carreira', '2020-07-17 23:00:00', 'Palco MEO');
+insert into activities (event, activity, scheduled, zone) values (1, 'Emanuel', '2020-07-17 21:00:00', 'Palco Vodafone');
+insert into activities (event, activity, scheduled, zone) values (1, 'Gipsy Kings', '2020-07-17 22:00:00', 'Palco Vodafone');
+insert into activities (event, activity, scheduled, zone) values (1, 'Dillaz', '2020-07-17 23:00:00', 'Palco Vodafone');
+
+insert into activities (event, activity, scheduled, zone) values (1, 'D Maniac', '2020-07-18 21:00:00', 'Palco MEO');
+insert into activities (event, activity, scheduled, zone) values (1, 'Eminem', '2020-07-18 22:00:00', 'Palco MEO');
+insert into activities (event, activity, scheduled, zone) values (1, 'System of a Down', '2020-07-18 23:00:00', 'Palco MEO');
+insert into activities (event, activity, scheduled, zone) values (1, 'Metallica', '2020-07-18 21:00:00', 'Palco Vodafone');
+insert into activities (event, activity, scheduled, zone) values (1, 'Rammstein', '2020-07-18 22:00:00', 'Palco Vodafone');
+insert into activities (event, activity, scheduled, zone) values (1, 'Angerfist', '2020-07-18 23:00:00', 'Palco Vodafone');
+
+insert into activities (event, activity, scheduled, zone) values (1, 'Tame Impala', '2020-07-19 21:00:00', 'Palco MEO');
+insert into activities (event, activity, scheduled, zone) values (1, 'Shakira', '2020-07-19 22:00:00', 'Palco MEO');
+insert into activities (event, activity, scheduled, zone) values (1, 'Basshunter', '2020-07-19 23:00:00', 'Palco MEO');
+insert into activities (event, activity, scheduled, zone) values (1, 'Oasis', '2020-07-19 21:00:00', 'Palco Vodafone');
+insert into activities (event, activity, scheduled, zone) values (1, 'UMO', '2020-07-19 22:00:00', 'Palco Vodafone');
+insert into activities (event, activity, scheduled, zone) values (1, 'Scorpions', '2020-07-19 23:00:00', 'Palco Vodafone');
+
+insert into activities (event, activity, scheduled, zone) values (1, 'Kevinho', '2020-07-20 21:00:00', 'Palco MEO');
+insert into activities (event, activity, scheduled, zone) values (1, 'MC G15', '2020-07-20 22:00:00', 'Palco MEO');
+insert into activities (event, activity, scheduled, zone) values (1, 'Kendrick Lamar', '2020-07-20 23:00:00', 'Palco MEO');
+insert into activities (event, activity, scheduled, zone) values (1, 'Mariza', '2020-07-20 21:00:00', 'Palco Vodafone');
+insert into activities (event, activity, scheduled, zone) values (1, 'Antonio Zambujo', '2020-07-20 22:00:00', 'Palco Vodafone');
+insert into activities (event, activity, scheduled, zone) values (1, 'Piruka', '2020-07-20 23:00:00', 'Palco Vodafone');
+
+insert into activities (event, activity, scheduled, zone) values (1, 'Wet Bed Gang', '2020-07-21 21:00:00', 'Palco MEO');
+insert into activities (event, activity, scheduled, zone) values (1, 'Oxia', '2020-07-21 22:00:00', 'Palco MEO');
+insert into activities (event, activity, scheduled, zone) values (1, 'Nto', '2020-07-21 23:00:00', 'Palco MEO');
+insert into activities (event, activity, scheduled, zone) values (1, 'Dr Peacock', '2020-07-21 21:00:00', 'Palco Vodafone');
+insert into activities (event, activity, scheduled, zone) values (1, 'Boris Brejsha', '2020-07-21 22:00:00', 'Palco Vodafone');
+insert into activities (event, activity, scheduled, zone) values (1, 'Projota', '2020-07-21 23:00:00', 'Palco Vodafone');
+
+insert into activities (event, activity, scheduled, zone) values (1, 'Plutonio', '2020-07-22 21:00:00', 'Palco MEO');
+insert into activities (event, activity, scheduled, zone) values (1, 'Julinho KSD', '2020-07-22 22:00:00', 'Palco MEO');
+insert into activities (event, activity, scheduled, zone) values (1, 'Tones and I', '2020-07-22 23:00:00', 'Palco MEO');
+insert into activities (event, activity, scheduled, zone) values (1, 'Joachim Pastor', '2020-07-22 21:00:00', 'Palco Vodafone');
+insert into activities (event, activity, scheduled, zone) values (1, 'CamelPhat', '2020-07-22 22:00:00', 'Palco Vodafone');
+insert into activities (event, activity, scheduled, zone) values (1, 'After', '2020-07-22 23:00:00', 'Palco Vodafone');
+
+-- evento acaba
+
+insert into routes(event, index, street) values (1, 1, 'rua1');
+insert into routes(event, index, street) values (1, 2, 'rua2');
+insert into routes(event, index, street) values (1, 3, 'rua3');
+insert into routes(event, index, street) values (1, 4, 'avenida1');
+insert into routes(event, index, street) values (1, 5, 'rua4');
+insert into routes(event, index, street) values (1, 6, 'avenida2');
+
+insert into parks(name, event, lat, lon) values('Parque Norte', 1, 40.6420, -8.6567);
+insert into parks(name, event, lat, lon) values('Parque Sul', 1, 40.6422, -8.6569);
+
+insert into wcs (zone, event, lat, lon) values ('WC Mulheres', 1, 40.6430, -8.6577);
+insert into wcs (zone, event, lat, lon) values ('WC Homens', 1, 40.6433, -8.6574);
+
+insert into stages(name, event, lat, lon) values ('Palco MEO', 1, 40.6440, -8.6587);
+insert into stages(name, event, lat, lon) values ('Palco Vodafone', 1, 40.6445, -8.6582);
+
+insert into artists (name, event, photo, about) values ('Richie Campbell', 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/Ruhr_Reggae_Summer_M%C3%BClheim_2014_Richie_Campbell_06.jpg/800px-Ruhr_Reggae_Summer_M%C3%BClheim_2014_Richie_Campbell_06.jpg', 'Musico de raggae portugues.');
+insert into artists (name, event, photo, about) values ('Slow J', 1, 'https://radioaltominho.pt/wp-content/uploads/2018/04/slow-j.jpg', 'Musico portugues ');
+insert into artists (name, event, photo, about) values ('Meduza', 1, 'https://www.thesun.co.uk/wp-content/uploads/2019/12/71c-wuZX-1L._SS500_.jpg?strip=all&w=500', 'Produtores House italianos');
+insert into artists (name, event, photo, about) values ('Quim Barreiros', 1, 'https://www.cm-pontadelgada.pt/thumbs/cmpontadelgada/uploads/event/image/1886/image_sss_1_1024_2500.png', 'Cantor Portugues');
+insert into artists (name, event, photo, about) values ('Italo Brothers', 1, 'https://upload.wikimedia.org/wikipedia/commons/3/3b/Italobrothers.jpg', 'Projeto alemao');
+insert into artists (name, event, photo, about) values ('Mundo Segundo', 1, 'https://www.juponline.pt/wp-content/uploads/2014/06/msg-press-1-1024x682.jpg', 'Rapper portugues');
+insert into artists (name, event, photo, about) values ('Carolina Deslandes', 1, 'https://media-manager.noticiasaominuto.com/1920/1584992125/naom_5c7e497871ade.jpg', 'Cantora portuguesa');
+insert into artists (name, event, photo, about) values ('Vini Vici', 1, 'https://d3vhc53cl8e8km.cloudfront.net/hello-staging/wp-content/uploads/2015/10/10011246/TD4sKKVCjhUe3pyDvli4rkW0fr81V1YonpFVlJoj-972x597.jpeg', 'Produtores de PsyTrance israelitas');
+insert into artists (name, event, photo, about) values ('Quim das Remisturas', 1, 'https://www.noticiasdecoimbra.pt/wp-content/uploads/2019/05/quim-das-remisturas.jpg', 'Quim das remisturas');
+insert into artists (name, event, photo, about) values ('Xutos & Pontapés', 1, 'https://www.barlavento.pt/wp-content/uploads/2019/08/imgLoader2-1068x601.jpg', 'Grupo de Rock portugues.');
+insert into artists (name, event, photo, about) values ('Madredeus', 1, 'http://www.megaron.gr/files/PHOTOSTHIRTEENFOURTEEN/JAZZWORLDMUSIC/madredeuspage2.jpg', 'Eletronica + Fado');
+insert into artists (name, event, photo, about) values ('Ornatos Violeta', 1, 'https://www.barlavento.pt/wp-content/uploads/2018/12/2560613_A101-216137_resultado.jpg', 'Rock Alternativo portugues');

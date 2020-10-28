@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  {% block title %}<title>Dashboard</title>{% endblock %}
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+  <!-- Add additional CSS in static file -->
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+
+  <script type="text/javascript">
+    window.onload = function() {
+      people_total();
+      people_more();
+      people_less();
+      queue();
+      parkingLot();
+      sales();
+      liveStage();
+    }
+    function liveStage(){
+        var stage = "{{ on_stage }}";
+        var stage = stage.replace(/&#39;/g,"'");
+        var stage = JSON.parse('"' + stage + '"');
+        var stage = JSON.parse(stage.replace(/'/g,"\""));
+
+        keys = [];
+        for (k in stage) keys.push(k);
+
+        ctr = 0;
+        for (var j=0; j<keys.length; j++){
+          buildOnStage(keys[j],ctr,stage);
+          ctr = ctr + 1;
+        }
+    }
+
+    function buildOnStage(spot,ctr,stage){
+        //table
+        var tabelaNova = document.createElement("TABLE");
+        if (ctr==0){
+            tabelaNova.setAttribute("style","display: inline-block;")
+        }
+        else{
+            tabelaNova.setAttribute("style","display: inline-block; margin-left: 20px;")
+        }
+        tabelaNova.setAttribute("id", "tabelaStage"+spot);
+        document.getElementById("live").appendChild(tabelaNova);
+
+        //First row
+        var new_row1 = document.createElement('tr');
+        new_row1.setAttribute("style","text-align: center; width: 200px; border-collapse: collapse; border: 1px solid black;")
+        new_row1.setAttribute("id","newRow1"+spot);
+        document.getElementById("tabelaStage"+spot).appendChild(new_row1);
+        
+
+        //Add Heads
+        var new_head = document.createElement("TH");
+        new_head.setAttribute("style","text-align: center; width: 200px; border-collapse: collapse; border: 1px solid black;")
+        new_head.setAttribute("id","headStage"+spot);
+        new_head.innerHTML = spot;
+        document.getElementById("newRow1"+spot).appendChild(new_head);
+        
+
+        //Add Second row
+        var new_row2 = document.createElement('tr');
+        new_row2.setAttribute("style","text-align: center; width: 200px; border-collapse: collapse; border: 1px solid black;")
+        new_row2.setAttribute("id","newRow2"+spot);
+        document.getElementById("tabelaStage"+spot).appendChild(new_row2);
+        
+        
+        //Add Content
+        var new_content = document.createElement("td");
+        new_content.setAttribute("style","text-align: center; width: 200px; border-collapse: collapse; border: 1px solid black;")
+        new_content.setAttribute("id","content"+spot);
+        new_content.innerHTML = stage[spot].split("-")[0];
+        document.getElementById("newRow2"+spot).appendChild(new_content);
+    }
+
+    function sales(){
+        var sales = "{{ total_sales_today }}";
+        var sales = sales.replace(/&#39;/g,"'");
+        var sales = JSON.parse('"' + sales + '"');
+        var sales = JSON.parse(sales.replace(/'/g,"\""));
+
+        keys = [];
+        for (k in sales) keys.push(k);
+
+        
+        
+        ctr = 0;
+        for (var j=0; j<keys.length; j++){
+          buildTableSales(keys[j],ctr,sales);
+          ctr = ctr + 1;
+        }
+    }
+
+    function buildTableSales(spot,ctr,sales){
+        //table
+        var tabelaNova = document.createElement("TABLE");
+        if (ctr==0){
+            tabelaNova.setAttribute("style","display: inline-block;")
+        }
+        else{
+            tabelaNova.setAttribute("style","display: inline-block; margin-left: 20px;")
+        }
+        tabelaNova.setAttribute("id", "tabelaSales"+spot);
+        document.getElementById("sales").appendChild(tabelaNova);
+
+        //First row
+        var new_row1 = document.createElement('tr');
+        new_row1.setAttribute("style","text-align: center; width: 200px; border-collapse: collapse; border: 1px solid black;")
+        new_row1.setAttribute("id","newRow1"+spot);
+        document.getElementById("tabelaSales"+spot).appendChild(new_row1);
+        
+
+        //Add Heads
+        var new_head = document.createElement("TH");
+        new_head.setAttribute("style","text-align: center; width: 200px; border-collapse: collapse; border: 1px solid black;")
+        new_head.setAttribute("id","headSales"+spot);
+        new_head.innerHTML = spot.split("_")[2];
+        document.getElementById("newRow1"+spot).appendChild(new_head);
+        
+
+        //Add Second row
+        var new_row2 = document.createElement('tr');
+        new_row2.setAttribute("style","text-align: center; width: 200px; border-collapse: collapse; border: 1px solid black;")
+        new_row2.setAttribute("id","newRow2"+spot);
+        document.getElementById("tabelaSales"+spot).appendChild(new_row2);
+        
+        
+        //Add Content
+        var new_content = document.createElement("td");
+        new_content.setAttribute("style","text-align: center; width: 200px; border-collapse: collapse; border: 1px solid black;")
+        new_content.setAttribute("id","content"+spot);
+        new_content.innerHTML = sales[spot];
+        document.getElementById("newRow2"+spot).appendChild(new_content);
+        
+    }
+
+    function parkingLot(){
+        var parking_colors = "{{ parking_colors }}";
+        var parking_colors = parking_colors.replace(/&#39;/g,"'");
+        var parking_colors = JSON.parse('"' + parking_colors + '"');
+        var parking_colors = JSON.parse(parking_colors.replace(/'/g,"\""));
+        
+        keys = [];
+        for (k in parking_colors) keys.push(k);
+
+        ctr = 0;
+        for (var j=0; j<keys.length; j++){
+          buildTablePark(keys[j],ctr,parking_colors);
+          ctr = ctr + 1;
+        }
+    }
+
+    function buildTablePark(spot,ctr,queues_colors){
+        var tabelaNova = document.createElement("TABLE");
+        tabelaNova.setAttribute("style","display: inline-block;");
+        if(ctr!=0){
+          tabelaNova.setAttribute("style","display: inline-block;margin-left:20px;");
+        }
+        tabelaNova.setAttribute("id", "tabelaPark"+spot);
+        document.getElementById("park").appendChild(tabelaNova);
+
+        //first row
+        var new_row1 = document.createElement('tr');
+        new_row1.setAttribute("style","text-align: center; width: 200px; border-collapse: collapse; border: 1px solid black;")
+        new_row1.setAttribute("id","newRow1"+spot);
+        document.getElementById("tabelaPark"+spot).appendChild(new_row1);
+      
+        //head
+        var new_head = document.createElement("TH");
+        new_head.setAttribute("style","text-align: center; width: 200px; border-collapse: collapse; border: 1px solid black;")
+        new_head.setAttribute("id","headPark"+spot);
+        new_head.innerHTML = spot;
+        document.getElementById("newRow1"+spot).appendChild(new_head);
+
+        //second row
+        var new_row2 = document.createElement('tr');
+        new_row2.setAttribute("style","text-align: center; width: 200px; border-collapse: collapse; border: 1px solid black;")
+        new_row2.setAttribute("id","newRow2"+spot);
+        document.getElementById("tabelaPark"+spot).appendChild(new_row2);
+
+        //content
+        var new_content = document.createElement("td");
+
+        if (queues_colors[spot]=="red"){
+          new_content.setAttribute("style","text-align: center; background-color:red; height: 10px; width: 200px; border-collapse: collapse; border: 1px solid black;");
+        }
+        else if (queues_colors[spot]=="green"){
+          new_content.setAttribute("style","text-align: center; background-color: green; height: 10px; width: 200px; border-collapse: collapse; border: 1px solid black;");
+        }
+        else if (queues_colors[spot]=="orange"){
+          new_content.setAttribute("style","text-align: center; background-color: orange; height: 10px; width: 200px; border-collapse: collapse; border: 1px solid black;");
+        }
+        else if (queues_colors[spot]=="yellow"){
+          new_content.setAttribute("style","text-align: center; background-color: yellow; height: 10px; width: 200px; border-collapse: collapse; border: 1px solid black;");
+        }
+        else{
+          new_content.setAttribute("style","background-color: blue; text-align: center; height: 10px; width: 200px; border-collapse: collapse; border: 1px solid black;");
+        }
+        new_content.setAttribute("id","content"+spot);
+        document.getElementById("newRow2"+spot).appendChild(new_content);
+    }
+
+    function queue(){
+        var queues_colors = "{{ queues_colors }}";
+        var queues_colors = queues_colors.replace(/&#39;/g,"'");
+        var queues_colors = JSON.parse('"' + queues_colors + '"');
+        var queues_colors = JSON.parse(queues_colors.replace(/'/g,"\""));
+        
+
+        keys = [];
+        for (k in queues_colors) keys.push(k);
+
+        ctr = 0;
+        for (var j=0; j<keys.length; j++){
+          buildTableQueue(keys[j],ctr,queues_colors);
+          ctr = ctr + 1;
+        }
+    }
+
+    
+
+    function buildTableQueue(spot,ctr,queues_colors){
+        var tabelaNova = document.createElement("TABLE");
+        tabelaNova.setAttribute("style","display: inline-block;");
+        if(ctr!=0){
+          tabelaNova.setAttribute("style","display: inline-block;margin-left:20px;");
+        }
+        tabelaNova.setAttribute("id", "tabelaQueue"+spot);
+        document.getElementById("queue").appendChild(tabelaNova);
+
+        //first row
+        var new_row1 = document.createElement('tr');
+        new_row1.setAttribute("style","text-align: center; width: 200px; border-collapse: collapse; border: 1px solid black;")
+        new_row1.setAttribute("id","newRow1"+spot);
+        document.getElementById("tabelaQueue"+spot).appendChild(new_row1);
+      
+        //head
+        var new_head = document.createElement("TH");
+        new_head.setAttribute("style","text-align: center; width: 200px; border-collapse: collapse; border: 1px solid black;")
+        new_head.setAttribute("id","headQueue"+spot);
+        new_head.innerHTML = spot;
+        document.getElementById("newRow1"+spot).appendChild(new_head);
+
+        //second row
+        var new_row2 = document.createElement('tr');
+        new_row2.setAttribute("style","text-align: center; width: 200px; border-collapse: collapse; border: 1px solid black;")
+        new_row2.setAttribute("id","newRow2"+spot);
+        document.getElementById("tabelaQueue"+spot).appendChild(new_row2);
+
+        //content
+        var new_content = document.createElement("td");
+
+        if (queues_colors[spot]=="red"){
+          new_content.setAttribute("style","text-align: center; background-color:red; height: 10px; width: 200px; border-collapse: collapse; border: 1px solid black;");
+        }
+        else if (queues_colors[spot]=="green"){
+          new_content.setAttribute("style","text-align: center; background-color: green; height: 10px; width: 200px; border-collapse: collapse; border: 1px solid black;");
+        }
+        else{
+          new_content.setAttribute("style","background-color: blue; text-align: center; height: 10px; width: 200px; border-collapse: collapse; border: 1px solid black;");
+        }
+        new_content.setAttribute("id","content"+spot);
+        document.getElementById("newRow2"+spot).appendChild(new_content);
+    }
+
+    function people_total(){
+        var atm = "{{ total_participants }}";
+        
+        //table
+        var tabelaNova = document.createElement("TABLE");
+        tabelaNova.setAttribute("style","display: inline-block;");
+        tabelaNova.setAttribute("style","display: inline-block;");
+        tabelaNova.setAttribute("id", "tabelaNovaPeopleTotal");
+        document.getElementById("atm").appendChild(tabelaNova);
+
+        //first row
+        var new_row1 = document.createElement('tr');
+        new_row1.setAttribute("style","text-align: center; width: 200px; border-collapse: collapse; border: 1px solid black;")
+        new_row1.setAttribute("id","newRow1Total");
+        document.getElementById("tabelaNovaPeopleTotal").appendChild(new_row1);
+      
+        //head
+        var new_head = document.createElement("TH");
+        new_head.setAttribute("style","text-align: center; width: 200px; border-collapse: collapse; border: 1px solid black;")
+        new_head.setAttribute("id","headTotal");
+        new_head.innerHTML = "Total of participants";
+        document.getElementById("newRow1Total").appendChild(new_head);
+
+        //second row
+        var new_row2 = document.createElement('tr');
+        new_row2.setAttribute("style","text-align: center; width: 200px; border-collapse: collapse; border: 1px solid black;")
+        new_row2.setAttribute("id","newRow2Total");
+        document.getElementById("tabelaNovaPeopleTotal").appendChild(new_row2);
+
+        //content
+        var new_content = document.createElement("td");
+        new_content.setAttribute("style","text-align: center; width: 200px; border-collapse: collapse; border: 1px solid black;")
+        new_content.setAttribute("id","contentTotal");
+        new_content.innerHTML = atm;
+        document.getElementById("newRow2Total").appendChild(new_content);
+
+    }
+
+    function people_more(){
+        var atm = "{{ more }}";
+        
+        //table
+        var tabelaNova = document.createElement("TABLE");
+        tabelaNova.setAttribute("style","display: inline-block;");
+        tabelaNova.setAttribute("style","display: inline-block; margin-left: 20px;");
+        tabelaNova.setAttribute("id", "tabelaNovaPeopleMore");
+        document.getElementById("atm").appendChild(tabelaNova);
+
+        //first row
+        var new_row1 = document.createElement('tr');
+        new_row1.setAttribute("style","text-align: center; width: 200px; border-collapse: collapse; border: 1px solid black;")
+        new_row1.setAttribute("id","newRow1More");
+        document.getElementById("tabelaNovaPeopleMore").appendChild(new_row1);
+      
+        //head
+        var new_head = document.createElement("TH");
+        new_head.setAttribute("style","text-align: center; width: 200px; border-collapse: collapse; border: 1px solid black;")
+        new_head.setAttribute("id","headMore");
+        new_head.innerHTML = "Area with more people";
+        document.getElementById("newRow1More").appendChild(new_head);
+
+        //second row
+        var new_row2 = document.createElement('tr');
+        new_row2.setAttribute("style","text-align: center; width: 200px; border-collapse: collapse; border: 1px solid black;")
+        new_row2.setAttribute("id","newRow2More");
+        document.getElementById("tabelaNovaPeopleMore").appendChild(new_row2);
+
+        //content
+        var new_content = document.createElement("td");
+        new_content.setAttribute("style","text-align: center; width: 200px; border-collapse: collapse; border: 1px solid black;")
+        new_content.setAttribute("id","contentMore");
+        new_content.innerHTML = atm;
+        document.getElementById("newRow2More").appendChild(new_content);
+    }
+
+    function people_less(){
+        var atm = "{{ less }}";
+        
+        //table
+        var tabelaNova = document.createElement("TABLE");
+        tabelaNova.setAttribute("style","display: inline-block;");
+        tabelaNova.setAttribute("style","display: inline-block; margin-left: 20px;");
+        tabelaNova.setAttribute("id", "tabelaNovaPeopleLess");
+        document.getElementById("atm").appendChild(tabelaNova);
+
+        //first row
+        var new_row1 = document.createElement('tr');
+        new_row1.setAttribute("style","text-align: center; width: 200px; border-collapse: collapse; border: 1px solid black;")
+        new_row1.setAttribute("id","newRow1Less");
+        document.getElementById("tabelaNovaPeopleLess").appendChild(new_row1);
+      
+        //head
+        var new_head = document.createElement("TH");
+        new_head.setAttribute("style","text-align: center; width: 200px; border-collapse: collapse; border: 1px solid black;")
+        new_head.setAttribute("id","headLess");
+        new_head.innerHTML = "Area with less people";
+        document.getElementById("newRow1Less").appendChild(new_head);
+
+        //second row
+        var new_row2 = document.createElement('tr');
+        new_row2.setAttribute("style","text-align: center; width: 200px; border-collapse: collapse; border: 1px solid black;")
+        new_row2.setAttribute("id","newRow2Less");
+        document.getElementById("tabelaNovaPeopleLess").appendChild(new_row2);
+
+        //content
+        var new_content = document.createElement("td");
+        new_content.setAttribute("style","text-align: center; width: 200px; border-collapse: collapse; border: 1px solid black;")
+        new_content.setAttribute("id","contentLess");
+        new_content.innerHTML = atm;
+        document.getElementById("newRow2Less").appendChild(new_content);
+    }
+
+    
+  
+  </script>
+</head>
+<body>
+  <!-- Side navigation -->
+    <div class="sidenav">
+      <a href="home" style="margin-top: 20px;">Home</a>
+      <a href="people">People</a>
+      <a href="parking">Parking</a>
+      <a href="meteorology">Meteorology</a>
+      <a href="gps">GPS</a>
+      <a href="sales">Sales</a>
+      <a href="activities">Activities</a>
+      <a href="wcs">WCs</a>
+      <a href="queue">Queues</a>
+      <a href="logout">Logout</a>
+    </div>
+
+<!-- Page content -->
+    <div class="main">
+        {% block includes %}
+        Username: {{ user }}
+        {% endblock includes %}
+
+        <div class="main-text" id="atm">
+          <h4 style="margin-bottom: 20px;">People:</h4>
+        </div>
+        <div class="main-text" id="queue">
+          <h4 style="margin-bottom: 20px;">Queue:</h4>
+        </div>
+        <div class="main-text" id="park">
+          <h4 style="margin-bottom: 20px;">Parking Lots:</h4>
+        </div>
+        <div class="main-text" id="sales">
+          <h4 style="margin-bottom: 20px;">Today sales:</h4>
+        </div>
+        <div class="main-text" id="live">
+          <h4 style="margin-bottom: 20px;">On stage:</h4>
+        </div>
+
+
+    </div>
+</body>
+</html>

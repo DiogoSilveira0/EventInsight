@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  {% block title %}<title>Dashboard</title>{% endblock %}
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+  <!-- Add additional CSS in static file -->
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+
+  <script type="text/javascript">
+  
+      window.onload = function(){
+        
+        var atm = "{{ atm }}";
+        var atm = atm.replace(/&#39;/g,"'");
+        var atm = JSON.parse('"' + atm + '"');
+        var atm = JSON.parse(atm.replace(/'/g,"\""));
+       
+        var keys_atm = [];
+        for (var k in atm) keys_atm.push(k);
+
+        for (var j = 0; j < keys_atm.length; j++) { //Create tables
+          var tabelaNova = document.createElement("TABLE");
+          if (j==0){
+            tabelaNova.setAttribute("style","display: inline-block;");
+          }
+          else{
+            tabelaNova.setAttribute("style","display: inline-block; margin-left: 23px;")
+          }
+          tabelaNova.setAttribute("id", "tabelaNova"+ keys_atm[j]);
+
+          document.getElementById("atm").appendChild(tabelaNova);
+        
+        }
+
+        for (var j=0; j< keys_atm.length; j++){ //Add first row
+          var new_row1 = document.createElement('tr');
+          new_row1.setAttribute("style","text-align: center; width: 200px; border-collapse: collapse; border: 1px solid black;")
+          new_row1.setAttribute("id","newRow1"+keys_atm[j]);
+          document.getElementById("tabelaNova"+keys_atm[j]).appendChild(new_row1);
+        }
+
+        for (var j=0; j<keys_atm.length;j++){ //Add Heads
+          var new_head = document.createElement("TH");
+          new_head.setAttribute("style","text-align: center; width: 200px; border-collapse: collapse; border: 1px solid black;")
+          new_head.setAttribute("id","head"+keys_atm[j]);
+          new_head.innerHTML = keys_atm[j];
+          document.getElementById("newRow1"+keys_atm[j]).appendChild(new_head);
+        }
+
+        for (var j=0; j<keys_atm.length;j++){ //Add Second row
+          var new_row2 = document.createElement('tr');
+          new_row2.setAttribute("style","text-align: center; width: 200px; border-collapse: collapse; border: 1px solid black;")
+          new_row2.setAttribute("id","newRow2"+keys_atm[j]);
+          document.getElementById("tabelaNova"+keys_atm[j]).appendChild(new_row2);
+        }
+
+        for (var j=0; j<keys_atm.length;j++){ //Add Content
+          var new_content = document.createElement("td");
+          new_content.setAttribute("style","text-align: center; width: 200px; border-collapse: collapse; border: 1px solid black;")
+          new_content.setAttribute("id","content"+keys_atm[j]);
+          new_content.innerHTML = atm[keys_atm[j]];
+          document.getElementById("newRow2"+keys_atm[j]).appendChild(new_content);
+        }
+      }
+    </script>
+
+
+</head>
+<body>
+  <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+  <!-- Side navigation -->
+    <div class="sidenav">
+      <a href="home" style="margin-top: 20px;">Home</a>
+      <a href="people">People</a>
+      <a href="parking">Parking</a>
+      <a href="meteorology">Meteorology</a>
+      <a href="gps">GPS</a>
+      <a href="sales">Sales</a>
+      <a href="activities">Activities</a>
+      <a href="wcs">WCs</a>
+      <a href="queue">Queues</a>
+      <a href="logout">Logout</a>
+    </div>
+
+    <!-- Page content -->
+<div class="main" id="mainDiv">
+  {% block includes %}
+  Username: {{ user }}
+  {% endblock includes %}
+    <div class="main-text">
+      <h4>At the moment:</h4>
+    </div>
+
+    <div class="main-text">
+      <table style="display: inline-block;">
+        <tr> 
+          <th class="tableDH">
+            Total of participants
+          </th>
+        </tr>
+        <tr>
+          <td class="tableDH">
+            {% block total_participants %} {{ total_participants }} {% endblock total_participants %}
+          </td>
+        </tr>
+      </table>
+
+      <table style="display: inline-block; margin-left: 20px;">
+        <tr> 
+          <th class="tableDH">
+            Area with more people
+          </th>
+        </tr>
+        <tr>
+          <td class="tableDH">
+            {% block more %} {{ more }} {% endblock more %}
+          </td>
+        </tr>
+      </table>
+
+      <table style="display: inline-block; margin-left: 20px;">
+        <tr> 
+          <th class="tableDH">
+            Area with fewer people
+          </th>
+        </tr>
+        <tr>
+          <td class="tableDH">
+            {% block less %} {{ less }} {% endblock less %}
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="main-text" id="atm">
+    </div>
+
+    <br><br>
+    
+</div>
+</body>
+</html>

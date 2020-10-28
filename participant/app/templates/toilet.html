@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Event Insights</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="http://www.openlayers.org/api/OpenLayers.js"></script>
+  </head>
+  <!-- Add additional CSS in static file -->
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+  
+  <script type="text/javascript">
+    function clearDiv(){
+      document.getElementById("mapdiv").innerHTML = "";
+    }
+
+    function makeRow(i,key,wcs,cor){
+      var parque = key;
+      var capacidade = wcs[key]["free"]+wcs[key]["full"];
+      var free = wcs[key]["free"];
+      
+  
+      var new_row = document.createElement('tr');
+      new_row.setAttribute("class","elem-table");
+      new_row.setAttribute("id","row_"+key);
+      new_row.insertCell(0).innerHTML = parque;
+      new_row.insertCell(1).innerHTML = capacidade;
+      new_row.insertCell(2).innerHTML = free;
+      new_row.insertCell(3).innerHTML = "";
+      document.getElementById("tableWCS").appendChild(new_row);
+      applyColor(i,key,cor);
+    }
+
+    function applyColor(i,key,cor){
+      var x = document.getElementById("tableWCS").rows[i+1].cells[3];
+      x.style.backgroundColor = cor;  
+    }
+
+    function addOnClick(name){
+      var btn = document.getElementById("btn_"+name);
+      btn.setAttribute("onclick","showMap(btn_"+name+")");
+    }
+
+    function showMap(name){
+      //clear div
+      document.getElementById("mapdiv").innerHTML = "";
+
+      //mapa 
+      var name = (name.id).split("_")[1];
+      console.log(name);
+
+      var local ="{{ localizacao }}";
+  
+      var local = local.replace(/&quot;/g,"'");
+      var local = JSON.parse('"' + local + '"');
+      var local = JSON.parse(local.replace(/'/g,"\""));
+
+      var keys = [];
+      for (var k in local) keys.push(k);
+
+      var coord = local[name];
+      console.log(coord);
+      var lat = coord[0];
+      var lon = coord[1];
+      
+      makeMap(lat,lon);
+      
+    }
+    
+    function createParagraph(name){
+      var para = document.createElement("p");
+      para.setAttribute("id",name);
+      document.getElementById("plus_buttons").appendChild(para);
+    }
+
+    function createButton(name){
+      var btn = document.createElement("button");
+      btn.setAttribute("id","btn_"+name);
+      btn.setAttribute("type","button");
+      btn.setAttribute("class","btn btn-default btn-sm");
+      btn.setAttribute("style","margin-top:20px; margin-left:20px;");
+      document.getElementById(name).appendChild(btn);
+      btn.innerText = name+ " ";
+
+    }
+
+    function createSpan(name){
+      var span = document.createElement("span");
+      span.setAttribute("id","span_"+name);
+      span.setAttribute("class","glyphicon glyphicon-plus-sign");
+      document.getElementById("btn_"+name).append(span);
+    }
+
+    function makeMap(lat,lon){
+      map = new OpenLayers.Map("mapdiv");
+      map.addLayer(new OpenLayers.Layer.OSM());
+
+      var lonLat = new OpenLayers.LonLat( lon ,lat)
+            .transform(
+              new OpenLayers.Projection("EPSG:4326"), // transform from WGS 1984
+              map.getProjectionObject() // to Spherical Mercator Projection
+            );
+
+      var zoom=18;
+
+      var markers = new OpenLayers.Layer.Markers( "Markers" );
+      map.addLayer(markers);
+
+      var icon = new OpenLayers.Icon("{% static 'img/marker_sprite.png' %}",
+                                new OpenLayers.Size(34, 34));
+
+
+      markers.addMarker(new OpenLayers.Marker(lonLat,icon));
+
+      map.setCenter (lonLat, zoom);
+    }
+    //AQUI
+    function showValues(){
+      var queue = "{{ queue }}";
+      var queue = queue.replace(/&quot;/g,"'");
+      var queue = JSON.parse('"' + queue + '"');
+      var queue = JSON.parse(queue.replace(/'/g,"\""));
+
+      
+
+      keys = []
+      for (k in queue) keys.push(k);
+
+      //div
+      for (var j = 0; j < keys.length; j++) {
+        var divNova = document.createElement("div"); 
+        var id = "queue"+keys[j];
+        divNova.setAttribute("id",id);
+        divNova.setAttribute("style","margin-left: 0px;margin-top: 20px; height: 100px; width: 100%;");
+        document.getElementById("fila").appendChild(divNova);
+      }
+
+      //h4
+      for (var j = 0; j < keys.length; j++) {
+        var title = document.createElement("h4");
+        title.setAttribute("style","margin-top: 50px;font-size: 25px; margin-bottom: 20px;font-family: Impact, Charcoal, sans-serif;font-size: 35px;");
+        if(queue[keys[j]][0]==0){
+          if (keys[j]=="Error"){
+            title.textContent = "Error";
+          }
+          else{
+            title.textContent = keys[j] +" : No queue!";
+          }
+        }
+        else{
+          title.textContent = keys[j];
+        }
+        document.getElementById("queue"+keys[j]).appendChild (title);
+      }
+      
+      //tabela1
+      for (var j = 0; j < keys.length; j++) {
+        var tabelaNova = document.createElement("TABLE");
+        tabelaNova.setAttribute("style","display: inline-block; margin-top:0px; margin-left: 0px;")
+        tabelaNova.setAttribute("id", "tabelaNova"+ keys[j]);
+        document.getElementById("queue"+keys[j]).appendChild(tabelaNova);
+      }
+
+      for (var j=0; j< keys.length; j++){ //Add first row
+          var new_row1 = document.createElement('tr');
+          new_row1.setAttribute("style","text-align: center; width: 200px; border-collapse: collapse; border: 1px solid black;")
+          new_row1.setAttribute("id","newRow1"+keys[j]);
+          document.getElementById("tabelaNova"+keys[j]).appendChild(new_row1);
+        }
+
+      for (var j=0; j<keys.length;j++){ //Add Heads
+          var new_head = document.createElement("TH");
+          new_head.setAttribute("style","text-align: center; width: 250px; border-collapse: collapse; border: 1px solid black;")
+          new_head.setAttribute("id","head"+keys[j]);
+          new_head.setAttribute("class","head-table");
+          if (keys[j]=="Error"){
+            new_head.innerHTML = "Error getting Queue values";
+          }
+          else{
+            new_head.innerHTML = "Queue";
+          }
+          document.getElementById("newRow1"+keys[j]).appendChild(new_head);
+      }
+
+      for (var j=0; j<keys.length;j++){ //Add Second row
+          var new_row2 = document.createElement('tr');
+          new_row2.setAttribute("style","text-align: center; width: 200px; border-collapse: collapse; border: 1px solid black;")
+          new_row2.setAttribute("id","newRow2"+keys[j]);
+          document.getElementById("tabelaNova"+keys[j]).appendChild(new_row2);
+      }
+
+      for (var j=0; j<keys.length;j++){ //Add Content
+          var new_content = document.createElement("td");
+          new_content.setAttribute("style","text-align: center; width: 200px; border-collapse: collapse; border: 1px solid black;")
+          new_content.setAttribute("id","content"+keys[j]);
+          new_content.innerHTML = queue[keys[j]][0];
+          document.getElementById("newRow2"+keys[j]).appendChild(new_content);
+      }
+
+
+      //tabela2
+      for (var j = 0; j < keys.length; j++) {
+        var tabelaNova2 = document.createElement("TABLE");
+        tabelaNova2.setAttribute("style","display: inline-block; margin-top:10px;")
+        tabelaNova2.setAttribute("id", "tabela2"+ keys[j]);
+        document.getElementById("queue"+keys[j]).appendChild(tabelaNova2);
+      }
+
+      for (var j=0; j< keys.length; j++){ //Add first row
+          var new_row3 = document.createElement('tr');
+          new_row3.setAttribute("style","text-align: center; width: 200px; border-collapse: collapse; border: 1px solid black;")
+          new_row3.setAttribute("id","newRow3"+keys[j]);
+          document.getElementById("tabela2"+keys[j]).appendChild(new_row3);
+        }
+
+      for (var j=0; j<keys.length;j++){ //Add Heads
+          var new_head2 = document.createElement("TH");
+          new_head2.setAttribute("class","head-table");
+          new_head2.setAttribute("style","text-align: center; width: 250px; border-collapse: collapse; border: 1px solid black;")
+          new_head2.setAttribute("id","head2"+keys[j]);
+          if (keys[j]=="Error"){
+            new_head2.innerHTML = "Error getting Average time";
+          }
+          else{
+            new_head2.innerHTML = "Average Time";
+          }
+          document.getElementById("newRow3"+keys[j]).appendChild(new_head2);
+      }
+
+      for (var j=0; j<keys.length;j++){ //Add Second row
+          var new_row4 = document.createElement('tr');
+          new_row4.setAttribute("style","text-align: center; width: 200px; border-collapse: collapse; border: 1px solid black;")
+          new_row4.setAttribute("id","newRow4"+keys[j]);
+          document.getElementById("tabela2"+keys[j]).appendChild(new_row4);
+      }
+
+      for (var j=0; j<keys.length;j++){ //Add Content
+          var new_content2 = document.createElement("td");
+          new_content2.setAttribute("style","text-align: center; width: 200px; border-collapse: collapse; border: 1px solid black;")
+          new_content2.setAttribute("id","content2"+keys[j]);
+          if (queue[keys[j]][1]>1){
+            new_content2.innerHTML = queue[keys[j]][1] + " minutes";
+          }
+          else{
+            new_content2.innerHTML = queue[keys[j]][1] + " minute";
+          }
+          
+          document.getElementById("newRow4"+keys[j]).appendChild(new_content2);
+      }
+    }
+
+    //ACABA AQUI  
+
+    window.onload = function(){
+          //filas
+          showValues();
+          
+          //botoes
+          var wcs ="{{ wcs }}";
+  
+          var wcs = wcs.replace(/&quot;/g,"'");
+          var wcs = JSON.parse('"' + wcs + '"');
+          var wcs = JSON.parse(wcs.replace(/'/g,"\""));
+   
+          var keys = [];
+          for (var k in wcs) keys.push(k);
+
+          for (var i = 0; i < keys.length; i++) {
+            createParagraph(keys[i]);
+            createButton(keys[i]);
+            createSpan(keys[i]);
+            addOnClick(keys[i]);
+          }
+
+
+          var cores = "{{ cores }}";
+          
+          var cores = cores.replace(/&#39;/g,"'");
+          var cores = JSON.parse('"' + cores + '"');
+          var cores = JSON.parse(cores.replace(/'/g,"\""));
+
+
+          //wcs
+          for (var i = 0; i < keys.length; i++) {
+            makeRow(i,keys[i],wcs,cores[keys[i]]);
+          }
+        }
+    </script>
+
+    
+
+</head>
+<body>
+
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark" id="nav">
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      Event Insights <span class="navbar-toggler-icon"></span>
+    </button>
+  
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="/">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="entrance">Entrance</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="stages">Stages</a>
+        </li>
+        <li class="nav-item active">
+          <a class="nav-link" href="toilet">Bathrooms</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="parking">Parking</a>
+        </li>
+    </div>
+  </nav>
+
+<div class="main-text" id="main">
+  <table class="table" id="tableWCS">
+    <h4 style="margin-top: 50px;font-size: 25px; margin-bottom: 20px;font-family: Impact, Charcoal, sans-serif;font-size: 35px;">WCs Available:</h4>
+    <tr class="head-table">
+      <th style="text-align: center;">WC</th>
+      <th style="text-align: center;">Capacity</th>
+      <th style="text-align: center;">Available</th>
+      <th style="text-align: center;"></th>
+    </tr>
+  </table>
+
+  <div style="margin-left: 0px;" id="fila">
+    
+  </div>
+  <h3 style="margin-top:100px;font-family: Impact, Charcoal, sans-serif;font-size: 35px;">How to go to...</h3>
+
+  <div class="row">
+    <div class="row" id="plus_buttons" style="margin-left:10px;">
+      
+    </div>
+    <button id="btn_clear" type="button" onclick="clearDiv()" class="close" aria-label="Close">
+      <span aria-hidden="true" style="margin-top:5px;margin-left:50px;font-size: 35px;">&times;</span>
+    </button>
+
+    
+  </div>  
+
+  <div class="main-text" id="random">
+  </div>
+
+
+  <div id="mapdiv" style="margin-top: 10000px; width: 50%; height: 50%;"></div>
+
+
+
+</div>
+
+</div>
+
+
+</body>
+</html>

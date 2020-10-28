@@ -1,0 +1,121 @@
+drop table if exists wcs;
+drop table if exists stages;
+drop table if exists parks;
+drop table if exists routes;
+drop table if exists parades;
+drop table if exists activities;
+drop table if exists loc_sensors;
+drop table if exists events;
+drop table if exists sensors;
+
+create table sensors(
+    id serial primary key,
+    type varchar(20) not null
+);
+
+create table events(
+    id serial primary key,
+    name varchar(20) not null,
+    local varchar(20) not null,
+    lat numeric(6, 4),
+    lon numeric(6, 4),
+    address varchar(50),
+    open_at time not null,
+    close_at time not null 
+);
+
+create table users_events (
+    username varchar(20) not null,
+    event serial not null,
+    foreign key (event) references events(id),
+    primary key (username, event)
+);
+
+create table loc_sensors(
+    sensor serial primary key,
+    event serial not null,
+    zone varchar(20) not null,
+    foreign key (sensor) references sensors(id),
+    foreign key (event) references events(id)
+);
+
+create table artists(
+    name varchar(50) not null,
+    event serial not null,
+    photo varchar(200),
+    about text,
+    foreign key (event) references events(id),
+    primary key (name, event)
+);
+
+create table stages(
+    name varchar(20) not null,
+    event int not null,
+    lat numeric(6, 4),
+    lon numeric(6, 4),
+    foreign key (event) references events(id),
+    primary key (name, event)
+);
+
+create table activities(
+    event serial not null,
+    activity varchar(20),
+    scheduled timestamp,
+    zone varchar(20),
+    primary key (event, activity),
+    unique (scheduled, zone),
+    foreign key (event) references events(id)
+);
+
+create table parades(
+    name varchar(20) not null,
+    event serial not null,
+    start_time timestamp not null,
+    start_lat numeric(6, 4) not null,
+    start_lon numeric(6, 4) not null,
+    end_lat numeric(6, 4) not null,
+    end_lon numeric(6, 4) not null,
+    foreign key (event) references events(id),
+    primary key (event) 
+);
+
+create table parks(
+    name varchar(20) not null,
+    event serial not null,
+    lat numeric(6, 4) not null,
+    lon numeric(6, 4) not null,
+    foreign key (event) references events(id),
+    primary key (name, event)
+);
+
+create table wcs(
+    zone varchar(20) not null,
+    event serial not null,
+    lat numeric(6, 4),
+    lon numeric(6, 4),
+    foreign key (event) references events(id),
+    primary key (zone, event)
+);
+
+create table routes(
+    event serial,
+    index serial,
+    street varchar(20) not null,
+    primary key (event, index),
+    foreign key (event) references events(id)
+);
+
+create view sensors_info as
+    select sensor, type, events.id as id_event, name as event_name, zone from sensors 
+    join loc_sensors on (sensors.id = sensor) 
+    join events on (events.id = event);
+
+create view sensor_bindings as 
+    select sensors.id as sensor, type, event as event_id,name as event_name, zone,
+    local from sensors left outer join loc_sensors on (sensors.id = sensor) left outer 
+    join events on (event = events.id);
+
+create view stages_artists as
+    select stages.event as event_id, name, activity 
+    from stages join activities 
+    on zone = name and stages.event = activities.event;

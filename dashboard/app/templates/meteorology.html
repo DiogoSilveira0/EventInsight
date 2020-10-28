@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  {% block title %}<title>Dashboard</title>{% endblock %}
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+  <!-- Add additional CSS in static file -->
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+
+  <script type="text/javascript">
+   
+  </script>
+
+<script type="text/javascript">
+  function makeChartTempMax(){
+
+    var tempMax ="{{ temp_max }}";
+
+    var tempMax = tempMax.replace(/&quot;/g,"'");
+    var tempMax = JSON.parse('"' + tempMax + '"');
+    
+    var tempMax = JSON.parse(tempMax.replace(/'/g,"\""));
+
+    var keys = [];
+    for (var k in tempMax) keys.push(k); //DIAS A POR NO GRAFICO
+
+    var chart = new CanvasJS.Chart("tempMax", {
+        animationEnabled: true,
+        theme: "light2",
+        title:{
+          text: "Temperature (Higher) ºC"
+        },
+        axisX:{
+          title: "Dia",
+          interval: 1,
+          tickLength: 10,
+          includeZero: false
+        },
+        axisY:{
+          interval: 2,
+          includeZero: false
+        },
+        data: [{        
+          type: "line",
+              indexLabelFontSize: 16,
+          dataPoints: [
+            //5 ELEMENTOS => 5 DIAS
+            { x: new Date(parseInt(keys[0].split("-")[0]),parseInt(keys[0].split("-")[1]),parseInt(keys[0].split("-")[2])), y: parseInt(tempMax[keys[0]])},
+            { x: new Date(parseInt(keys[1].split("-")[0]),parseInt(keys[1].split("-")[1]),parseInt(keys[1].split("-")[2])), y: parseInt(tempMax[keys[1]])},
+            { x: new Date(parseInt(keys[2].split("-")[0]),parseInt(keys[2].split("-")[1]),parseInt(keys[2].split("-")[2])), y: parseInt(tempMax[keys[2]])},
+            { x: new Date(parseInt(keys[3].split("-")[0]),parseInt(keys[3].split("-")[1]),parseInt(keys[3].split("-")[2])), y: parseInt(tempMax[keys[3]])},
+            { x: new Date(parseInt(keys[4].split("-")[0]),parseInt(keys[4].split("-")[1]),parseInt(keys[4].split("-")[2])), y: parseInt(tempMax[keys[4]])}
+          ]
+        }]
+      });
+      chart.render();
+    }
+
+    function makeChartTempMin(){
+
+      var tempMin ="{{ temp_min }}";
+
+      var tempMin = tempMin.replace(/&quot;/g,"'");
+      var tempMin = JSON.parse('"' + tempMin + '"');
+
+      var tempMin = JSON.parse(tempMin.replace(/'/g,"\""));
+
+      var keys = [];
+      for (var k in tempMin) keys.push(k); //DIAS A POR NO GRAFICO
+
+
+      var chart = new CanvasJS.Chart("tempMin", {
+          animationEnabled: true,
+          theme: "light2",
+          title:{
+            text: "Temperature (Lower) ºC"
+          },
+
+          axisX:{
+            title: "Dia",
+            interval: 1,
+            tickLength: 10,
+            includeZero: false
+          },
+          axisY:{
+            interval: 2,
+            includeZero: false
+          },
+          data: [{        
+            type: "line",
+                indexLabelFontSize: 16,
+            dataPoints: [
+              //5 ELEMENTOS => 5 DIAS
+              { x: new Date(parseInt(keys[0].split("-")[0]),parseInt(keys[0].split("-")[1]),parseInt(keys[0].split("-")[2])), y: parseInt(tempMin[keys[0]])},
+              { x: new Date(parseInt(keys[1].split("-")[0]),parseInt(keys[1].split("-")[1]),parseInt(keys[1].split("-")[2])), y: parseInt(tempMin[keys[1]])},
+              { x: new Date(parseInt(keys[2].split("-")[0]),parseInt(keys[2].split("-")[1]),parseInt(keys[2].split("-")[2])), y: parseInt(tempMin[keys[2]])},
+              { x: new Date(parseInt(keys[3].split("-")[0]),parseInt(keys[3].split("-")[1]),parseInt(keys[3].split("-")[2])), y: parseInt(tempMin[keys[3]])},
+              { x: new Date(parseInt(keys[4].split("-")[0]),parseInt(keys[4].split("-")[1]),parseInt(keys[4].split("-")[2])), y: parseInt(tempMin[keys[4]])}
+            ]
+          }]
+        });
+        chart.render();
+      }
+    
+      function makeChartPrec(){
+
+        var prec ="{{ prec }}";
+
+        var prec = prec.replace(/&quot;/g,"'");
+        var prec = JSON.parse('"' + prec + '"');
+
+        var prec = JSON.parse(prec.replace(/'/g,"\""));
+
+        var keys = [];
+        for (var k in prec) keys.push(k); //DIAS A POR NO GRAFICO
+
+
+        var chart = new CanvasJS.Chart("prec", {
+            animationEnabled: true,
+            theme: "light2",
+            title:{
+              text: "Rain Probability"
+            },
+
+            axisX:{
+              title: "Dia",
+              interval: 1,
+              tickLength: 10,
+              includeZero: false,
+            },
+            axisY:{
+              includeZero: false
+            },
+            data: [{        
+              type: "line",
+                  indexLabelFontSize: 16,
+              dataPoints: [
+                //5 ELEMENTOS => 5 DIAS
+                { x: new Date(parseInt(keys[0].split("-")[0]),parseInt(keys[0].split("-")[1]),parseInt(keys[0].split("-")[2])), y: parseInt(prec[keys[0]])},
+                { x: new Date(parseInt(keys[1].split("-")[0]),parseInt(keys[1].split("-")[1]),parseInt(keys[1].split("-")[2])), y: parseInt(prec[keys[1]])},
+                { x: new Date(parseInt(keys[2].split("-")[0]),parseInt(keys[2].split("-")[1]),parseInt(keys[2].split("-")[2])), y: parseInt(prec[keys[2]])},
+                { x: new Date(parseInt(keys[3].split("-")[0]),parseInt(keys[3].split("-")[1]),parseInt(keys[3].split("-")[2])), y: parseInt(prec[keys[3]])},
+                { x: new Date(parseInt(keys[4].split("-")[0]),parseInt(keys[4].split("-")[1]),parseInt(keys[4].split("-")[2])), y: parseInt(prec[keys[4]])}
+              ]
+            }]
+          });
+          chart.render();
+        }
+        function makeChartVento(){
+
+          var vento ="{{ wind_scale }}";
+
+          var vento = vento.replace(/&quot;/g,"'");
+          var vento = JSON.parse('"' + vento + '"');
+
+          var vento = JSON.parse(vento.replace(/'/g,"\""));
+
+          var keys = [];
+          for (var k in vento) keys.push(k); //DIAS A POR NO GRAFICO
+
+
+          var chart = new CanvasJS.Chart("vento", {
+              animationEnabled: true,
+              theme: "light2",
+              title:{
+                text: "Wind Scale"
+              },
+
+              axisX:{
+                title: "Dia",
+                interval: 1,
+                tickLength: 10,
+                includeZero: true,
+              },
+              axisY:{
+                interval: 1,
+                includeZero: true
+              },
+              data: [{        
+                type: "line",
+                    indexLabelFontSize: 16,
+                dataPoints: [
+                  { x: new Date(parseInt(keys[0].split("-")[0]),parseInt(keys[0].split("-")[1]),parseInt(keys[0].split("-")[2])), 
+                    y: parseInt(vento[keys[0]])},
+                  { x: new Date(parseInt(keys[1].split("-")[0]),parseInt(keys[1].split("-")[1]),parseInt(keys[1].split("-")[2])), 
+                    y: parseInt(vento[keys[1]])},
+                  { x: new Date(parseInt(keys[2].split("-")[0]),parseInt(keys[2].split("-")[1]),parseInt(keys[2].split("-")[2])), 
+                    y: parseInt(vento[keys[2]])},
+                  { x: new Date(parseInt(keys[3].split("-")[0]),parseInt(keys[3].split("-")[1]),parseInt(keys[3].split("-")[2])), 
+                    y: parseInt(vento[keys[3]])},
+                  { x: new Date(parseInt(keys[4].split("-")[0]),parseInt(keys[4].split("-")[1]),parseInt(keys[4].split("-")[2])), 
+                    y: parseInt(vento[keys[4]])}
+                ]
+              }]
+            });
+            chart.render();
+          }
+
+          function makeTableTempMaxATM(){
+            var temp_max = "{{ temp_max }}";
+            var temp_max = temp_max.replace(/&quot;/g,"'");
+            var temp_max = JSON.parse('"' + temp_max + '"');
+            var temp_max = JSON.parse(temp_max.replace(/'/g,"\""));
+            
+            var hoje = "{{ hoje }}";
+
+            var keys_tmax = [];
+            for (var k in temp_max) keys_tmax.push(k);
+            
+            for (var j = 0; j < keys_tmax.length; j++) { //Create tables
+              var hojeSplit = hoje.split("-");
+              var keySplit = keys_tmax[j].split("-");
+              
+              if (hojeSplit[0]==keySplit[0]){
+                if (parseInt(hojeSplit[1])==(parseInt(keySplit[1])+1)){
+                  if (hojeSplit[2]==keySplit[2]){
+                    var tabelaMax = document.createElement("TABLE");
+                    tabelaMax.setAttribute("style","display: inline-block;")
+                    tabelaMax.setAttribute("id", "tabelaMax"+ keys_tmax[j]);
+
+                    document.getElementById("atm").appendChild(tabelaMax);
+                  }
+                }
+              }
+            }
+
+            for (var j=0; j< keys_tmax.length; j++){ //Add first row
+              var new_row1 = document.createElement('tr');
+              new_row1.setAttribute("style","text-align: center; width: 200px; border-collapse: collapse; border: 1px solid black;")
+              new_row1.setAttribute("id","maxnewRow1"+keys_tmax[j]);
+              var hojeSplit = hoje.split("-");
+              var keySplit = keys_tmax[j].split("-");
+
+              if (hojeSplit[0]==keySplit[0]){
+                if (parseInt(hojeSplit[1])==(parseInt(keySplit[1])+1)){
+                  if (hojeSplit[2]==keySplit[2]){
+                    document.getElementById("tabelaMax"+keys_tmax[j]).appendChild(new_row1);
+                  }
+                }
+              } 
+              
+            }
+
+            for (var j=0; j<keys_tmax.length;j++){ //Add Heads
+              var new_head = document.createElement("TH");
+              new_head.setAttribute("style","text-align: center; width: 200px; border-collapse: collapse; border: 1px solid black;")
+              new_head.setAttribute("id","head"+keys_tmax[j]);
+              new_head.innerHTML = "Higher Temperature";
+              
+              var hojeSplit = hoje.split("-");
+              var keySplit = keys_tmax[j].split("-");
+
+              if (hojeSplit[0]==keySplit[0]){
+                if (parseInt(hojeSplit[1])==(parseInt(keySplit[1])+1)){
+                  if (hojeSplit[2]==keySplit[2]){
+                    document.getElementById("maxnewRow1"+keys_tmax[j]).appendChild(new_head);
+                  }
+                }
+              } 
+            }
+            
+            for (var j=0; j<keys_tmax.length;j++){ //Add Second row
+              var new_row2 = document.createElement('tr');
+              new_row2.setAttribute("style","text-align: center; width: 200px; border-collapse: collapse; border: 1px solid black;")
+              new_row2.setAttribute("id","maxnewRow2"+keys_tmax[j]);
+
+              var hojeSplit = hoje.split("-");
+              var keySplit = keys_tmax[j].split("-");
+
+              if (hojeSplit[0]==keySplit[0]){
+                if (parseInt(hojeSplit[1])==(parseInt(keySplit[1])+1)){
+                  if (hojeSplit[2]==keySplit[2]){
+                    document.getElementById("tabelaMax"+keys_tmax[j]).appendChild(new_row2);
+                  }
+                }
+              } 
+          
+            }
+
+            for (var j=0; j<keys_tmax.length;j++){ //Add Content
+              var new_content = document.createElement("td");
+              new_content.setAttribute("style","text-align: center; width: 200px; border-collapse: collapse; border: 1px solid black;")
+              new_content.setAttribute("id","content"+keys_tmax[j]);
+              var hojeSplit = hoje.split("-");
+              var keySplit = keys_tmax[j].split("-");
+
+              if (hojeSplit[0]==keySplit[0]){
+                if (parseInt(hojeSplit[1])==(parseInt(keySplit[1])+1)){
+                  if (hojeSplit[2]==keySplit[2]){
+                    new_content.innerHTML = temp_max[keys_tmax[j]];
+                    document.getElementById("maxnewRow2"+keys_tmax[j]).appendChild(new_content);
+                  }
+                  else{
+                    new_content.innerHTML = 0;
+                  }
+                }
+                else{
+                  new_content.innerHTML = 0;
+                }
+              }else{
+                new_content.innerHTML = 0;
+              }
+              
+            }
+          }
+
+          function makeTableTempMinATM(){
+            var temp_min = "{{ temp_min }}";
+            var temp_min = temp_min.replace(/&quot;/g,"'");
+            var temp_min = JSON.parse('"' + temp_min + '"');
+            var temp_min = JSON.parse(temp_min.replace(/'/g,"\""));
+            
+            var hoje = "{{ hoje }}";
+
+            var keys_tmin = [];
+            for (var k in temp_min) keys_tmin.push(k);
+            
+            for (var j = 0; j < keys_tmin.length; j++) { //Create tables
+              var hojeSplit = hoje.split("-");
+              var keySplit = keys_tmin[j].split("-");
+
+              if (hojeSplit[0]==keySplit[0]){
+                if (parseInt(hojeSplit[1])==(parseInt(keySplit[1])+1)){
+                  if (hojeSplit[2]==keySplit[2]){
+                    var tabelaMin = document.createElement("TABLE");
+                    tabelaMin.setAttribute("style","display: inline-block; margin-left:20px;")
+                    tabelaMin.setAttribute("id", "tabelaMin"+ keys_tmin[j]);
+
+                    document.getElementById("atm").appendChild(tabelaMin);
+                  }
+                }
+              }
+            }
+
+            for (var j=0; j< keys_tmin.length; j++){ //Add first row
+              var new_row1 = document.createElement('tr');
+              new_row1.setAttribute("style","margin-left:20px; text-align: center; width: 200px; border-collapse: collapse; border: 1px solid black;")
+              new_row1.setAttribute("id","minnewRow1"+keys_tmin[j]);
+              var hojeSplit = hoje.split("-");
+              var keySplit = keys_tmin[j].split("-");
+
+              if (hojeSplit[0]==keySplit[0]){
+                if (parseInt(hojeSplit[1])==(parseInt(keySplit[1])+1)){
+                  if (hojeSplit[2]==keySplit[2]){
+                    document.getElementById("tabelaMin"+keys_tmin[j]).appendChild(new_row1);
+                  }
+                }
+              } 
+              
+            }
+
+            for (var j=0; j<keys_tmin.length;j++){ //Add Heads
+              var new_head = document.createElement("TH");
+              new_head.setAttribute("style","margin-left:20px; text-align: center; width: 200px; border-collapse: collapse; border: 1px solid black;")
+              new_head.setAttribute("id","head"+keys_tmin[j]);
+              new_head.innerHTML = "Lower Temperature";
+              
+              var hojeSplit = hoje.split("-");
+              var keySplit = keys_tmin[j].split("-");
+
+              if (hojeSplit[0]==keySplit[0]){
+                if (parseInt(hojeSplit[1])==(parseInt(keySplit[1])+1)){
+                  if (hojeSplit[2]==keySplit[2]){
+                    document.getElementById("minnewRow1"+keys_tmin[j]).appendChild(new_head);
+                  }
+                }
+              } 
+            }
+            
+            for (var j=0; j<keys_tmin.length;j++){ //Add Second row
+              var new_row2 = document.createElement('tr');
+              new_row2.setAttribute("style","margin-left:20px; text-align: center; width: 200px; border-collapse: collapse; border: 1px solid black;")
+              new_row2.setAttribute("id","minnewRow2"+keys_tmin[j]);
+
+              var hojeSplit = hoje.split("-");
+              var keySplit = keys_tmin[j].split("-");
+
+              if (hojeSplit[0]==keySplit[0]){
+                if (parseInt(hojeSplit[1])==(parseInt(keySplit[1])+1)){
+                  if (hojeSplit[2]==keySplit[2]){
+                    document.getElementById("tabelaMin"+keys_tmin[j]).appendChild(new_row2);
+                  }
+                }
+              } 
+              ;
+            }
+
+            for (var j=0; j<keys_tmin.length;j++){ //Add Content
+              var new_content = document.createElement("td");
+              new_content.setAttribute("style","margin-left:20px; text-align: center; width: 200px; border-collapse: collapse; border: 1px solid black;")
+              new_content.setAttribute("id","content"+keys_tmin[j]);
+              var hojeSplit = hoje.split("-");
+              var keySplit = keys_tmin[j].split("-");
+
+              if (hojeSplit[0]==keySplit[0]){
+                if (parseInt(hojeSplit[1])==(parseInt(keySplit[1])+1)){
+                  if (hojeSplit[2]==keySplit[2]){
+                    new_content.innerHTML = temp_min[keys_tmin[j]];
+                    document.getElementById("minnewRow2"+keys_tmin[j]).appendChild(new_content);
+                  }
+                  else{
+                    new_content.innerHTML = 0;
+                  }
+                }
+                else{
+                  new_content.innerHTML = 0;
+                }
+              }else{
+                new_content.innerHTML = 0;
+              }
+              
+            }
+          }
+          function makeTablePrec(){
+            var prec = "{{ prec }}";
+            var prec = prec.replace(/&quot;/g,"'");
+            var prec = JSON.parse('"' + prec + '"');
+            var prec = JSON.parse(prec.replace(/'/g,"\""));
+            
+            var hoje = "{{ hoje }}";
+
+            var keys_prec = [];
+            for (var k in prec) keys_prec.push(k);
+            
+            for (var j = 0; j < keys_prec.length; j++) { //Create tables
+              var hojeSplit = hoje.split("-");
+              var keySplit = keys_prec[j].split("-");
+
+              if (hojeSplit[0]==keySplit[0]){
+                if (parseInt(hojeSplit[1])==(parseInt(keySplit[1])+1)){
+                  if (hojeSplit[2]==keySplit[2]){
+                    var tabelaPrec = document.createElement("TABLE");
+                    if (j==0){
+                      tabelaPrec.setAttribute("style","display: inline-block; margin-left: 20px;")
+                    }
+                    else{
+                      tabelaPrec.setAttribute("style","display: inline-block; margin-left: 20px;")
+                    }
+                    tabelaPrec.setAttribute("id", "tabelaPrec"+ keys_prec[j]);
+
+                    document.getElementById("atm").appendChild(tabelaPrec);
+                  }
+                }
+              }
+            }
+
+            for (var j=0; j< keys_prec.length; j++){ //Add first row
+              var new_row1 = document.createElement('tr');
+              new_row1.setAttribute("style","text-align: center; width: 200px; border-collapse: collapse; border: 1px solid black;")
+              new_row1.setAttribute("id","precnewRow1"+keys_prec[j]);
+              var hojeSplit = hoje.split("-");
+              var keySplit = keys_prec[j].split("-");
+
+              if (hojeSplit[0]==keySplit[0]){
+                if (parseInt(hojeSplit[1])==(parseInt(keySplit[1])+1)){
+                  if (hojeSplit[2]==keySplit[2]){
+                    document.getElementById("tabelaPrec"+keys_prec[j]).appendChild(new_row1);
+                  }
+                }
+              } 
+              
+            }
+
+            for (var j=0; j<keys_prec.length;j++){ //Add Heads
+              var new_head = document.createElement("TH");
+              new_head.setAttribute("style","text-align: center; width: 200px; border-collapse: collapse; border: 1px solid black;")
+              new_head.setAttribute("id","head"+keys_prec[j]);
+              new_head.innerHTML = "Rain Probability";
+              
+              var hojeSplit = hoje.split("-");
+              var keySplit = keys_prec[j].split("-");
+
+              if (hojeSplit[0]==keySplit[0]){
+                if (parseInt(hojeSplit[1])==(parseInt(keySplit[1])+1)){
+                  if (hojeSplit[2]==keySplit[2]){
+                    document.getElementById("precnewRow1"+keys_prec[j]).appendChild(new_head);
+                  }
+                }
+              } 
+            }
+            
+            for (var j=0; j<keys_prec.length;j++){ //Add Second row
+              var new_row2 = document.createElement('tr');
+              new_row2.setAttribute("style","text-align: center; width: 200px; border-collapse: collapse; border: 1px solid black;")
+              new_row2.setAttribute("id","precnewRow2"+keys_prec[j]);
+
+              var hojeSplit = hoje.split("-");
+              var keySplit = keys_prec[j].split("-");
+
+              if (hojeSplit[0]==keySplit[0]){
+                if (parseInt(hojeSplit[1])==(parseInt(keySplit[1])+1)){
+                  if (hojeSplit[2]==keySplit[2]){
+                    document.getElementById("tabelaPrec"+keys_prec[j]).appendChild(new_row2);
+                  }
+                }
+              } 
+              ;
+            }
+
+            for (var j=0; j<keys_prec.length;j++){ //Add Content
+              var new_content = document.createElement("td");
+              new_content.setAttribute("style","text-align: center; width: 200px; border-collapse: collapse; border: 1px solid black;")
+              new_content.setAttribute("id","content"+keys_prec[j]);
+              var hojeSplit = hoje.split("-");
+              var keySplit = keys_prec[j].split("-");
+
+              if (hojeSplit[0]==keySplit[0]){
+                if (parseInt(hojeSplit[1])==(parseInt(keySplit[1])+1)){
+                  if (hojeSplit[2]==keySplit[2]){
+                    new_content.innerHTML = prec[keys_prec[j]];
+                    document.getElementById("precnewRow2"+keys_prec[j]).appendChild(new_content);
+                  }
+                  else{
+                    new_content.innerHTML = 0;
+                  }
+                }
+                else{
+                  new_content.innerHTML = 0;
+                }
+              }else{
+                new_content.innerHTML = 0;
+              }
+              
+            }
+          }
+          function makeTableVento(){
+            var vento = "{{ wind_scale }}";
+            var vento = vento.replace(/&quot;/g,"'");
+            var vento = JSON.parse('"' + vento + '"');
+            var vento = JSON.parse(vento.replace(/'/g,"\""));
+            
+            var hoje = "{{ hoje }}";
+
+            var keys_vento = [];
+            for (var k in vento) keys_vento.push(k);
+            
+            for (var j = 0; j < keys_vento.length; j++) { //Create tables
+              var hojeSplit = hoje.split("-");
+              var keySplit = keys_vento[j].split("-");
+
+              if (hojeSplit[0]==keySplit[0]){
+                if (parseInt(hojeSplit[1])==(parseInt(keySplit[1])+1)){
+                  if (hojeSplit[2]==keySplit[2]){
+                    var tabelaVento = document.createElement("TABLE");
+                    if (j==0){
+                      tabelaVento.setAttribute("style","display: inline-block; margin-left: 20px;")
+                    }
+                    else{
+                      tabelaVento.setAttribute("style","display: inline-block; margin-left: 20px;")
+                    }
+                    tabelaVento.setAttribute("id", "tabelaVento"+ keys_vento[j]);
+
+                    document.getElementById("atm").appendChild(tabelaVento);
+                  }
+                }
+              }
+            }
+
+            for (var j=0; j< keys_vento.length; j++){ //Add first row
+              var new_row1 = document.createElement('tr');
+              new_row1.setAttribute("style","text-align: center; width: 200px; border-collapse: collapse; border: 1px solid black;")
+              new_row1.setAttribute("id","ventonewRow1"+keys_vento[j]);
+              var hojeSplit = hoje.split("-");
+              var keySplit = keys_vento[j].split("-");
+
+              if (hojeSplit[0]==keySplit[0]){
+                if (parseInt(hojeSplit[1])==(parseInt(keySplit[1])+1)){
+                  if (hojeSplit[2]==keySplit[2]){
+                    document.getElementById("tabelaVento"+keys_vento[j]).appendChild(new_row1);
+                  }
+                }
+              } 
+              
+            }
+
+            for (var j=0; j<keys_vento.length;j++){ //Add Heads
+              var new_head = document.createElement("TH");
+              new_head.setAttribute("style","text-align: center; width: 200px; border-collapse: collapse; border: 1px solid black;")
+              new_head.setAttribute("id","head"+keys_vento[j]);
+              new_head.innerHTML = "Wind Scale";
+              
+              var hojeSplit = hoje.split("-");
+              var keySplit = keys_vento[j].split("-");
+
+              if (hojeSplit[0]==keySplit[0]){
+                if (parseInt(hojeSplit[1])==(parseInt(keySplit[1])+1)){
+                  if (hojeSplit[2]==keySplit[2]){
+                    document.getElementById("ventonewRow1"+keys_vento[j]).appendChild(new_head);
+                  }
+                }
+              } 
+            }
+            
+            for (var j=0; j<keys_vento.length;j++){ //Add Second row
+              var new_row2 = document.createElement('tr');
+              new_row2.setAttribute("style","text-align: center; width: 200px; border-collapse: collapse; border: 1px solid black;")
+              new_row2.setAttribute("id","ventonewRow2"+keys_vento[j]);
+
+              var hojeSplit = hoje.split("-");
+              var keySplit = keys_vento[j].split("-");
+
+              if (hojeSplit[0]==keySplit[0]){
+                if (parseInt(hojeSplit[1])==(parseInt(keySplit[1])+1)){
+                  if (hojeSplit[2]==keySplit[2]){
+                    document.getElementById("tabelaVento"+keys_vento[j]).appendChild(new_row2);
+                  }
+                }
+              } 
+              ;
+            }
+
+            for (var j=0; j<keys_vento.length;j++){ //Add Content
+              var new_content = document.createElement("td");
+              new_content.setAttribute("style","text-align: center; width: 200px; border-collapse: collapse; border: 1px solid black;")
+              new_content.setAttribute("id","content"+keys_vento[j]);
+              var hojeSplit = hoje.split("-");
+              var keySplit = keys_vento[j].split("-");
+
+              if (hojeSplit[0]==keySplit[0]){
+                if (parseInt(hojeSplit[1])==(parseInt(keySplit[1])+1)){
+                  if (hojeSplit[2]==keySplit[2]){
+                    new_content.innerHTML = vento[keys_vento[j]];
+                    document.getElementById("ventonewRow2"+keys_vento[j]).appendChild(new_content);
+                  }
+                  else{
+                    new_content.innerHTML = 0;
+                  }
+                }
+                else{
+                  new_content.innerHTML = 0;
+                }
+              }else{
+                new_content.innerHTML = 0;
+              }
+            }
+          }
+
+    window.onload = function(){
+      makeTableTempMaxATM();
+      makeTableTempMinATM();
+      makeTablePrec();
+      makeTableVento();
+      makeChartTempMax();
+      makeChartTempMin();
+      makeChartPrec();
+      makeChartVento();
+
+    }
+  </script>
+
+  <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+</head>
+<body>
+  <!-- Side navigation -->
+    <div class="sidenav">
+      <a href="home" style="margin-top: 20px;">Home</a>
+      <a href="people">People</a>
+      <a href="parking">Parking</a>
+      <a href="meteorology">Meteorology</a>
+      <a href="gps">GPS</a>
+      <a href="sales">Sales</a>
+      <a href="activities">Activities</a>
+      <a href="wcs">WCs</a>
+      <a href="queue">Queues</a>
+      <a href="logout">Logout</a>
+    </div>
+
+<!-- Page content -->
+    <div class="main">
+      {% block includes %}
+      Username: {{ user }}
+      {% endblock includes %}
+      <div class="main-text">
+        <h4>Today values: </h4>
+        <div id="atm" style="margin-top: 10px;"></div>
+        <h4 style="margin-top: 50px;">Forecast:</h4>
+        <div id="tempMax" style="margin-top: 50px; height: 270px; width: 100%;"></div><br>
+        <div id="tempMin" style="margin-top: 50px; height: 270px; width: 100%;"></div><br>
+        <div id="prec" style="margin-top: 50px; height: 270px; width: 100%;"></div><br>
+        <div id="vento" style="margin-top: 50px; height: 270px; width: 100%;"></div><br>
+      </div>
+      
+    </div>
+</body>
+</html>
